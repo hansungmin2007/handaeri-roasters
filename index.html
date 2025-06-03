@@ -5,24 +5,26 @@
   <title>한대리 로터스</title>
   <link rel="stylesheet" href="css/style.css">
 
-  <!-- ✅ Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyB585bChkNk2ClCdkgq09j7m8-eo5163w",
-      authDomain: "handaeri-auth-test.firebaseapp.com",
-      projectId: "handaeri-auth-test",
-      storageBucket: "handaeri-auth-test.appspot.com",
-      messagingSenderId: "972715372745",
-      appId: "1:972715372745:web:bb80e07ae160c6beb32dd8",
-      measurementId: "G-8FV8RLZ52B"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-  </script>
+  <!-- ✅ Firebase compat SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyB585bChkNk2ClCdkgq09j7m8-eo5163w",
+    authDomain: "handaeri-auth-test.firebaseapp.com",
+    projectId: "handaeri-auth-test",
+    storageBucket: "handaeri-auth-test.appspot.com",
+    messagingSenderId: "972715372745",
+    appId: "1:972715372745:web:bb80e07ae160c6beb32dd8",
+    measurementId: "G-8FV8RLZ52B"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+</script>
+
 </head>
 <body>
 

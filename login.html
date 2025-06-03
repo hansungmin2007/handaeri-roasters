@@ -15,7 +15,7 @@
       apiKey: "AIzaSyB55BGkNckk2ClCdkgqp0f9iZm8-o5163w",
       authDomain: "handaeri-auth-test.firebaseapp.com",
       projectId: "handaeri-auth-test",
-      storageBucket: "handaeri-auth-test.firebasestorage.app",
+      storageBucket: "handaeri-auth-test.appspot.com", // ✅ 수정됨
       messagingSenderId: "972715732745",
       appId: "1:972715732745:web:bbb9e07ac16cc6beb32dd8",
       measurementId: "G-8FV8ZRL528"
@@ -77,8 +77,10 @@
 
       auth.signInWithEmailAndPassword(email, password)
         .then(userCredential => {
-          const uid = userCredential.user.uid;
-          return db.collection("users").doc(uid).get();
+          const user = userCredential.user;
+          if (!user) throw new Error("사용자 정보가 없습니다.");
+
+          return db.collection("users").doc(user.uid).get();
         })
         .then(doc => {
           const name = doc.exists && doc.data().name ? doc.data().name : email;

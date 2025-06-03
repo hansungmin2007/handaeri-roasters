@@ -37,6 +37,10 @@
   const db = firebase.firestore();
   const rtdb = firebase.database();
 
+  function saveOrderToRTDB(order) {
+    rtdb.ref("orders/" + order.id).set(order);
+  }
+
   auth.onAuthStateChanged(user => {
     if (!user) {
       alert("로그인이 필요합니다.");
@@ -46,6 +50,12 @@
         if (!doc.exists || doc.data().role !== "admin") {
           alert("관리자 권한이 필요합니다.");
           location.href = "index.html";
+        } else {
+          rtdb.ref("orders").once("value").then(snapshot => {
+            const data = snapshot.val();
+            orders = Object.values(data || []);
+            renderOrders();
+          });
         }
       });
     }
@@ -102,7 +112,7 @@
 </footer>
 
 <script>
-  const orders = JSON.parse(localStorage.getItem("allOrders") || "[]");
+  let orders = [];
 
   function renderOrders() {
     const tbody = document.getElementById("order-body");
@@ -145,7 +155,6 @@
     const index = orders.findIndex(o => o.id === id);
     if (index !== -1) {
       orders[index].status = "배송 완료";
-      localStorage.setItem("allOrders", JSON.stringify(orders));
       document.getElementById(`status-${id}`).innerText = "배송 완료";
       alert("배송 상태가 변경되었습니다.");
       rtdb.ref("orders/" + id).update({ status: "배송 완료" });
@@ -154,10 +163,9 @@
 
   function deleteOrder(id) {
     if (!confirm("이 주문을 삭제하시겠습니까?")) return;
-    const updated = orders.filter(o => o.id !== id);
-    localStorage.setItem("allOrders", JSON.stringify(updated));
+    orders = orders.filter(o => o.id !== id);
     rtdb.ref("orders/" + id).remove();
-    location.reload();
+    renderOrders();
   }
 
   function downloadCSV() {
@@ -170,7 +178,7 @@
       o.items.map(i => `${i.name}(${i.qty})`).join("; "),
       o.status
     ]);
-    let csvContent = [header, ...rows].map(e => e.join(",")).join("\n");
+    const csvContent = [header, ...rows].map(e => e.join(",")).join("\n");
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
@@ -214,8 +222,6 @@
   function closeModal() {
     document.getElementById("detail-modal").style.display = "none";
   }
-
-  renderOrders();
 </script>
 
 </body>
