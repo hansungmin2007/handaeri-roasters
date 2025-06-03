@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>로그인 - 한대리 로터스</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ✅ 상단 헤더 -->
+  <header class="header">
+    <!-- 유틸 메뉴 -->
+    <div class="util-menu">
+      <ul>
+        <li class="auth-menu"><a href="signup.html">회원가입</a></li>
+        <li class="auth-menu"><a href="login.html">로그인</a></li>
+        <li><a href="#">주문조회</a></li>
+        <li><a href="cart.html">장바구니</a></li>
+        <li id="logout-menu" style="display: none;">
+          <button id="logout-btn">로그아웃</button>
+        </li>
+      </ul>
+    </div>
+
+    <h1><a href="01_index.html" class="logo">한대리 로터스</a></h1>
+  </header>
+
+  <!-- 로그인 환영 메시지 -->
+  <p id="welcome" style="text-align: right; padding-right: 1rem;"></p>
+
+  <!-- 메인 콘텐츠 -->
+  <main class="hero">
+    <h2>로그인</h2>
+
+    <!-- 로그인 실패 메시지 -->
+    <p id="login-error" style="color: red; display: none;">
+      이메일 또는 비밀번호가 올바르지 않습니다.
+    </p>
+
+    <!-- 로그인 폼 -->
+    <form id="login-form" style="max-width: 400px; margin: 0 auto; text-align: left;">
+      <label>이메일<br>
+        <input type="email" name="email" required>
+      </label><br><br>
+
+      <label>비밀번호<br>
+        <input type="password" name="password" minlength="6" required>
+      </label><br><br>
+
+      <button type="submit">로그인</button>
+    </form>
+  </main>
+
+  <!-- 푸터 -->
+  <footer class="footer">
+    &copy; 2025 한대리 로터스
+  </footer>
+
+  <!-- ✅ 로그인 상태 메뉴 제어 + 로그아웃 처리 -->
+  <script>
+    const username = localStorage.getItem("username");
+
+    if (username) {
+      const welcomeEl = document.getElementById("welcome");
+      if (welcomeEl) {
+        welcomeEl.innerHTML = `${username}님, 환영합니다!`;
+      }
+
+      document.getElementById("logout-menu").style.display = "inline";
+      document.querySelectorAll(".auth-menu").forEach(el => el.style.display = "none");
+
+      const logoutBtn = document.getElementById("logout-btn");
+      if (logoutBtn) {
+        logoutBtn.addEventListener("click", () => {
+          localStorage.removeItem("username");
+          alert("로그아웃 되었습니다.");
+          window.location.href = "01_index.html";
+        });
+      }
+    }
+  </script>
+
+  <!-- ✅ 로그인 처리 -->
+  <script>
+    document.getElementById("login-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const email = e.target.email.value;
+      const password = e.target.password.value;
+
+      // 예시 계정
+      const validEmail = "test@test.com";
+      const validPassword = "123456";
+
+      if (email === validEmail && password === validPassword) {
+        const name = email.split("@")[0];
+        localStorage.setItem("username", name);
+
+        alert(`${name}님, 로그인 성공!`);
+        window.location.href = "index.html";
+      } else {
+        document.getElementById("login-error").style.display = "block";
+      }
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>장바구니 - 한대리 로터스</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <script>
+    const username = localStorage.getItem("username");
+    if (!username) {
+      alert("로그인이 필요한 서비스입니다.");
+      window.location.href = "login.html";
+    }
+  </script>
+
+  <header class="header">
+    <div class="util-menu">
+      <ul>
+        <li class="auth-menu"><a href="signup.html">회원가입</a></li>
+        <li class="auth-menu"><a href="login.html">로그인</a></li>
+        <li><a href="#">주문조회</a></li>
+        <li><a href="cart.html">장바구니</a></li>
+        <li id="logout-menu" style="display: none;">
+          <button id="logout-btn">로그아웃</button>
+        </li>
+      </ul>
+    </div>
+    <h1><a href="01_index.html" class="logo">한대리 로터스</a></h1>
+  </header>
+
+  <p id="welcome" style="text-align: right; padding-right: 1rem;"></p>
+
+  <main class="hero">
+    <h2>장바구니</h2>
+
+    <div id="cart" style="max-width: 600px; margin: 2rem auto; text-align: left;">
+      <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr style="border-bottom: 2px solid #aaa;">
+            <th align="left">상품명</th>
+            <th>수량</th>
+            <th>가격</th>
+            <th>삭제</th>
+          </tr>
+        </thead>
+        <tbody id="cart-body">
+          <tr data-price="13000">
+            <td>에티오피아 예가체프</td>
+            <td><input type="number" class="qty" value="1" min="1" style="width: 50px;"></td>
+            <td class="price">13,000원</td>
+            <td><button class="delete-btn">삭제</button></td>
+          </tr>
+          <tr data-price="25000">
+            <td>파나마 게이샤</td>
+            <td><input type="number" class="qty" value="2" min="1" style="width: 50px;"></td>
+            <td class="price">25,000원</td>
+            <td><button class="delete-btn">삭제</button></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div id="total" style="text-align: right; margin-top: 1rem; font-weight: bold;">
+        총 합계: 63,000원
+      </div>
+
+      <div style="text-align: center; margin-top: 2rem;">
+        <button id="order-btn">주문하기</button>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    &copy; 2025 한대리 로터스
+  </footer>
+
+  <!-- 기능 스크립트 -->
+  <script>
+    const welcomeEl = document.getElementById("welcome");
+    if (username && welcomeEl) {
+      welcomeEl.textContent = `${username}님, 환영합니다!`;
+      document.getElementById("logout-menu").style.display = "inline";
+      document.querySelectorAll(".auth-menu").forEach(el => el.style.display = "none");
+
+      document.getElementById("logout-btn").addEventListener("click", () => {
+        localStorage.removeItem("username");
+        alert("로그아웃 되었습니다.");
+        window.location.href = "01_index.html";
+      });
+    }
+
+    const cartBody = document.getElementById("cart-body");
+    const totalEl = document.getElementById("total");
+
+    // 합계 계산 함수
+    function updateTotal() {
+      let total = 0;
+      cartBody.querySelectorAll("tr").forEach(row => {
+        const price = Number(row.dataset.price);
+        const qty = Number(row.querySelector(".qty").value);
+        total += price * qty;
+      });
+      totalEl.textContent = `총 합계: ${total.toLocaleString()}원`;
+    }
+
+    // 수량 변경 이벤트
+    cartBody.addEventListener("input", (e) => {
+      if (e.target.classList.contains("qty")) {
+        updateTotal();
+      }
+    });
+
+    // 삭제 버튼 이벤트
+    cartBody.addEventListener("click", (e) => {
+      if (e.target.classList.contains("delete-btn")) {
+        e.target.closest("tr").remove();
+        updateTotal();
+      }
+    });
+
+    // 주문 버튼 클릭 시 주문 데이터 저장 및 페이지 이동
+    document.getElementById("order-btn").addEventListener("click", () => {
+      const items = [];
+      cartBody.querySelectorAll("tr").forEach(row => {
+        const name = row.children[0].textContent;
+        const qty = row.querySelector(".qty").value;
+        items.push({ name, qty });
+      });
+      localStorage.setItem("order", JSON.stringify(items));
+      window.location.href = "order-summary.html";
+    });
+
+    // 최초 합계 계산
+    updateTotal();
+  </script>
+</body>
+</html>

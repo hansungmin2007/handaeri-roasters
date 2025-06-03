@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>주문 요약 - 한대리 로터스</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- 헤더 -->
+  <header class="header">
+    <h1><a href="01_index.html" class="logo">한대리 로터스</a></h1>
+  </header>
+
+  <!-- 메인 -->
+  <main class="hero">
+    <h2>주문이 완료되었습니다!</h2>
+
+    <div id="order-summary" style="max-width: 600px; margin: 2rem auto; text-align: left;">
+      <!-- 🛒 주문 내역 -->
+      <h3>🛒 주문 내역</h3>
+      <ul id="order-list" style="list-style: none; padding-left: 0;"></ul>
+
+      <!-- 📦 배송 정보 입력 -->
+      <h3 style="margin-top: 2rem;">📦 배송 정보</h3>
+      <form id="shipping-form">
+        <label>이름<br>
+          <input type="text" id="name" required />
+        </label><br><br>
+        <label>주소<br>
+          <input type="text" id="address" required />
+        </label><br><br>
+        <label>연락처<br>
+          <input type="text" id="phone" required />
+        </label><br><br>
+      </form>
+
+      <!-- 버튼 -->
+      <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+        <button onclick="downloadPDF()">PDF 저장</button>
+        <a href="01_index.html"><button>홈으로 돌아가기</button></a>
+      </div>
+    </div>
+  </main>
+
+  <!-- 푸터 -->
+  <footer class="footer">
+    &copy; 2025 한대리 로터스
+  </footer>
+
+  <!-- ✅ 주문 처리 스크립트 -->
+  <script>
+    const orderData = JSON.parse(localStorage.getItem("order") || "[]");
+    const orderList = document.getElementById("order-list");
+
+    // 주문 항목 출력
+    if (orderData.length > 0) {
+      orderData.forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = `${item.name} - ${item.qty}개`;
+        orderList.appendChild(li);
+      });
+    } else {
+      orderList.innerHTML = "<li>주문 정보가 없습니다.</li>";
+    }
+
+    // 이전 배송 정보 자동 채움
+    const savedShipping = JSON.parse(localStorage.getItem("shipping") || "{}");
+    if (savedShipping.name) document.getElementById("name").value = savedShipping.name;
+    if (savedShipping.address) document.getElementById("address").value = savedShipping.address;
+    if (savedShipping.phone) document.getElementById("phone").value = savedShipping.phone;
+
+    // PDF 저장 + 배송 정보 저장 + 주문 내역 전체 저장
+    async function downloadPDF() {
+      const name = document.getElementById("name").value.trim();
+      const address = document.getElementById("address").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+
+      if (!name || !address || !phone) {
+        alert("배송 정보를 모두 입력해주세요.");
+        return;
+      }
+
+      // 배송 정보 저장
+      const shippingInfo = { name, address, phone };
+      localStorage.setItem("shipping", JSON.stringify(shippingInfo));
+
+      // 관리자용 주문 전체 저장
+      const newOrder = {
+        id: Date.now(),
+        items: orderData,
+        customer: shippingInfo,
+        status: "배송 준비중"
+      };
+      const allOrders = JSON.parse(localStorage.getItem("allOrders") || "[]");
+      allOrders.push(newOrder);
+      localStorage.setItem("allOrders", JSON.stringify(allOrders));
+
+      // PDF 다운로드
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      doc.setFont("Helvetica", "normal");
+      doc.setFontSize(14);
+      doc.text("📦 주문 요약서 - 한대리 로터스", 20, 20);
+
+      doc.text(`이름: ${name}`, 20, 40);
+      doc.text(`주소: ${address}`, 20, 50);
+      doc.text(`연락처: ${phone}`, 20, 60);
+
+      doc.text("🛒 주문 내역:", 20, 80);
+
+      let y = 90;
+      orderData.forEach(item => {
+        doc.text(`- ${item.name} x ${item.qty}`, 20, y);
+        y += 10;
+      });
+
+      doc.save("order-summary.pdf");
+    }
+  </script>
+</body>
+</html>

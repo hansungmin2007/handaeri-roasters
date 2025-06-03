@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>원두 소개 - 한대리 로터스</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="header">
+    <h1><a href="01_index.html" class="logo">한대리 로터스</a></h1>
+  </header>
+
+  <main class="hero">
+    <h2>원두 리스트</h2>
+    <div id="bean-list" class="bean-list"></div>
+  </main>
+
+  <footer class="footer">
+    &copy; 2025 한대리 로터스
+  </footer>
+
+  <script>
+    fetch("02-1_beans.json") // ← beans.json 위치에 따라 경로 조정
+      .then(response => response.json())
+      .then(data => {
+        const listEl = document.getElementById("bean-list");
+
+        data.forEach(bean => {
+          const card = document.createElement("div");
+          card.className = "bean-card";
+          card.innerHTML = `
+            <img src="${bean.image}" alt="${bean.name}" style="width:100%; border-radius:12px;">
+            <h3>${bean.name}</h3>
+            <p><strong>원산지:</strong> ${bean.origin}</p>
+            <p><strong>풍미:</strong> ${bean.flavor}</p>
+            <p><strong>로스팅:</strong> ${bean.roast}</p>
+            <p><strong>가격:</strong> ${bean.price.toLocaleString()}원</p>
+          `;
+          listEl.appendChild(card);
+        });
+      })
+      .catch(error => {
+        document.getElementById("bean-list").innerText = "원두 정보를 불러올 수 없습니다.";
+        console.error("불러오기 실패:", error);
+      });
+  </script>
+</body>
+</html>

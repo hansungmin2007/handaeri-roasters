@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>회원가입 - 한대리 로터스</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ✅ 헤더 -->
+  <header class="header">
+    <!-- 유틸 메뉴 -->
+    <div class="util-menu">
+      <ul>
+        <li class="auth-menu"><a href="signup.html">회원가입</a></li>
+        <li class="auth-menu"><a href="login.html">로그인</a></li>
+        <li><a href="#">주문조회</a></li>
+        <li><a href="cart.html">장바구니</a></li>
+        <li id="logout-menu" style="display: none;">
+          <button id="logout-btn">로그아웃</button>
+        </li>
+      </ul>
+    </div>
+
+    <!-- 로고 -->
+    <h1><a href="01_index.html" class="logo">한대리 로터스</a></h1>
+  </header>
+
+  <!-- ✅ 환영 메시지 -->
+  <p id="welcome" style="text-align: right; padding-right: 1rem;"></p>
+
+  <!-- 메인 -->
+  <main class="hero">
+    <h2>회원가입</h2>
+
+    <!-- 오류 메시지 표시 -->
+    <p id="signup-error" style="color: red; display: none;"></p>
+
+    <!-- 회원가입 폼 -->
+    <form id="signup-form" style="max-width: 400px; margin: 0 auto; text-align: left;">
+      <label>이름<br>
+        <input type="text" name="name" required>
+      </label><br><br>
+
+      <label>이메일<br>
+        <input type="email" name="email" required>
+      </label><br><br>
+
+      <label>비밀번호<br>
+        <input type="password" name="password" id="password" minlength="6" required>
+      </label><br><br>
+
+      <label>비밀번호 확인<br>
+        <input type="password" name="confirm_password" id="confirm-password" minlength="6" required>
+      </label><br><br>
+
+      <button type="submit">회원가입</button>
+    </form>
+  </main>
+
+  <!-- 푸터 -->
+  <footer class="footer">
+    &copy; 2025 한대리 로터스
+  </footer>
+
+  <!-- ✅ 로그인 상태 제어 + 로그아웃 처리 -->
+  <script>
+    const username = localStorage.getItem("username");
+
+    if (username) {
+      const welcomeEl = document.getElementById("welcome");
+      if (welcomeEl) {
+        welcomeEl.innerHTML = `${username}님, 환영합니다!`;
+      }
+
+      document.getElementById("logout-menu").style.display = "inline";
+      document.querySelectorAll(".auth-menu").forEach(el => el.style.display = "none");
+
+      const logoutBtn = document.getElementById("logout-btn");
+      if (logoutBtn) {
+        logoutBtn.addEventListener("click", () => {
+          localStorage.removeItem("username");
+          alert("로그아웃 되었습니다.");
+          window.location.href = "01_index.html";
+        });
+      }
+    }
+  </script>
+
+  <!-- ✅ 회원가입 유효성 검사 -->
+  <script>
+    const fakeRegisteredEmails = ["test@test.com", "coffee@roast.com"];
+
+    document.getElementById("signup-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const email = document.querySelector('input[name="email"]').value;
+      const pw = document.getElementById("password").value;
+      const confirmPw = document.getElementById("confirm-password").value;
+      const errorEl = document.getElementById("signup-error");
+
+      if (fakeRegisteredEmails.includes(email)) {
+        errorEl.innerText = "이미 가입된 이메일입니다.";
+        errorEl.style.display = "block";
+        return;
+      }
+
+      if (pw !== confirmPw) {
+        errorEl.innerText = "비밀번호가 일치하지 않습니다.";
+        errorEl.style.display = "block";
+        return;
+      }
+
+      errorEl.style.display = "none";
+      alert("회원가입 성공!");
+    });
+  </script>
+
+</body>
+</html>
