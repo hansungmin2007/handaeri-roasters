@@ -6,6 +6,8 @@
   <link rel="stylesheet" href="css/style.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
   <style>
     table {
@@ -55,203 +57,205 @@
 </head>
 <body>
 
-  <!-- 🔐 관리자 접근 제한 -->
-  <script>
-    const username = localStorage.getItem("username");
-    if (username !== "admin") {
-      alert("관리자 권한이 필요합니다.");
-      window.location.href = "login.html";
+<!-- 🔐 Firebase + 관리자 인증 -->
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyB585bChkNk2ClCdkgq09j7m8-eo5163w",
+    authDomain: "handaeri-auth-test.firebaseapp.com",
+    databaseURL: "https://handaeri-auth-test-default-rtdb.firebaseio.com",
+    projectId: "handaeri-auth-test",
+    storageBucket: "handaeri-auth-test.appspot.com",
+    messagingSenderId: "972715372745",
+    appId: "1:972715372745:web:bb80e07ae160c6beb32dd8",
+    measurementId: "G-8FV8RLZ52B"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+  const rtdb = firebase.database();
+
+  auth.onAuthStateChanged(user => {
+    if (!user) {
+      alert("로그인이 필요합니다.");
+      location.href = "login.html";
+    } else {
+      db.collection("users").doc(user.uid).get().then(doc => {
+        if (!doc.exists || doc.data().role !== "admin") {
+          alert("관리자 권한이 필요합니다.");
+          location.href = "index.html";
+        }
+      });
     }
+  });
+</script>
 
-    // 🔥 Firebase 초기화
-    const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-      databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_PROJECT_ID.appspot.com",
-      messagingSenderId: "YOUR_SENDER_ID",
-      appId: "YOUR_APP_ID"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-  </script>
+<header class="header">
+  <h1><a href="index.html" class="logo">한대리 로터스</a></h1>
+</header>
 
-  <header class="header">
-    <h1><a href="index.html" class="logo">한대리 로터스</a></h1>
-  </header>
+<main class="hero">
+  <h2>📦 관리자 주문 목록</h2>
 
-  <main class="hero">
-    <h2>📦 관리자 주문 목록</h2>
-
-    <!-- 검색 & 필터 -->
-    <div style="max-width: 800px; margin: 1rem auto; display: flex; gap: 1rem; align-items: center;">
-      <input type="text" id="search-input" placeholder="이름 검색" style="padding: 0.4rem; flex: 1;">
-      <select id="status-filter" style="padding: 0.4rem;">
-        <option value="">전체</option>
-        <option value="배송 준비 중">배송 준비 중</option>
-        <option value="배송 완료">배송 완료</option>
-      </select>
-      <button onclick="renderOrders()">검색</button>
-      <button onclick="downloadCSV()">CSV 저장</button>
-      <button onclick="downloadXLSX()">엑셀 저장</button>
-    </div>
-
-    <!-- 주문 테이블 -->
-    <div style="max-width: 1000px; margin: auto;">
-      <table>
-        <thead>
-          <tr>
-            <th>주문번호</th>
-            <th>이름</th>
-            <th>주소</th>
-            <th>연락처</th>
-            <th>상품</th>
-            <th>상태</th>
-            <th>관리</th>
-          </tr>
-        </thead>
-        <tbody id="order-body"></tbody>
-      </table>
-    </div>
-  </main>
-
-  <!-- 🔍 주문 상세 모달 -->
-  <div id="detail-modal">
-    <div class="modal-content">
-      <button onclick="closeModal()">✖</button>
-      <h3>📝 주문 상세</h3>
-      <div id="modal-content" style="margin-top:1rem;"></div>
-    </div>
+  <div style="max-width: 800px; margin: 1rem auto; display: flex; gap: 1rem; align-items: center;">
+    <input type="text" id="search-input" placeholder="이름 검색" style="padding: 0.4rem; flex: 1;">
+    <select id="status-filter" style="padding: 0.4rem;">
+      <option value="">전체</option>
+      <option value="배송 준비 중">배송 준비 중</option>
+      <option value="배송 완료">배송 완료</option>
+    </select>
+    <button onclick="renderOrders()">검색</button>
+    <button onclick="downloadCSV()">CSV 저장</button>
+    <button onclick="downloadXLSX()">엑셀 저장</button>
   </div>
 
-  <footer class="footer">
-    &copy; 2025 한대리 로터스
-  </footer>
+  <div style="max-width: 1000px; margin: auto;">
+    <table>
+      <thead>
+        <tr>
+          <th>주문번호</th>
+          <th>이름</th>
+          <th>주소</th>
+          <th>연락처</th>
+          <th>상품</th>
+          <th>상태</th>
+          <th>관리</th>
+        </tr>
+      </thead>
+      <tbody id="order-body"></tbody>
+    </table>
+  </div>
+</main>
 
-  <!-- ✅ 관리자 기능 스크립트 -->
-  <script>
-    const orders = JSON.parse(localStorage.getItem("allOrders") || "[]");
+<!-- 상세 모달 -->
+<div id="detail-modal">
+  <div class="modal-content">
+    <button onclick="closeModal()">✖</button>
+    <h3>📝 주문 상세</h3>
+    <div id="modal-content" style="margin-top:1rem;"></div>
+  </div>
+</div>
 
-    // 여기에 Firebase로 orders 업로드 예시 (선택적으로 동기화할 수 있음)
-    // orders.forEach(order => db.ref("orders/" + order.id).set(order));
+<footer class="footer">
+  &copy; 2025 한대리 로터스
+</footer>
 
-    function renderOrders() {
-      const tbody = document.getElementById("order-body");
-      const search = document.getElementById("search-input").value.toLowerCase();
-      const filter = document.getElementById("status-filter").value;
-      tbody.innerHTML = "";
+<!-- 주문 목록 렌더링 및 기능 -->
+<script>
+  const orders = JSON.parse(localStorage.getItem("allOrders") || "[]");
 
-      const filtered = orders.filter(order => {
-        const matchName = order.customer.name.toLowerCase().includes(search);
-        const matchStatus = filter ? order.status === filter : true;
-        return matchName && matchStatus;
-      });
+  function renderOrders() {
+    const tbody = document.getElementById("order-body");
+    const search = document.getElementById("search-input").value.toLowerCase();
+    const filter = document.getElementById("status-filter").value;
+    tbody.innerHTML = "";
 
-      if (filtered.length === 0) {
-        tbody.innerHTML = "<tr><td colspan='7'>주문 정보가 없습니다.</td></tr>";
-        return;
-      }
+    const filtered = orders.filter(order => {
+      const matchName = order.customer.name.toLowerCase().includes(search);
+      const matchStatus = filter ? order.status === filter : true;
+      return matchName && matchStatus;
+    });
 
-      filtered.forEach(order => {
-        const row = document.createElement("tr");
-        const products = order.items.map(i => `${i.name} (${i.qty}개)`).join("<br>");
-        row.innerHTML = `
-          <td>${order.id}</td>
-          <td>${order.customer.name}</td>
-          <td>${order.customer.address}</td>
-          <td>${order.customer.phone}</td>
-          <td>${products}</td>
-          <td id="status-${order.id}">${order.status}</td>
-          <td>
-            <button class="action-btn" onclick="viewDetail(${order.id})">상세</button>
-            <button class="action-btn" onclick="changeStatus(${order.id})">배송 완료</button>
-            <button class="action-btn" style="color:red;" onclick="deleteOrder(${order.id})">삭제</button>
-          </td>
-        `;
-        tbody.appendChild(row);
-      });
+    if (filtered.length === 0) {
+      tbody.innerHTML = "<tr><td colspan='7'>주문 정보가 없습니다.</td></tr>";
+      return;
     }
 
-    function changeStatus(id) {
-      const index = orders.findIndex(o => o.id === id);
-      if (index !== -1) {
-        orders[index].status = "배송 완료";
-        localStorage.setItem("allOrders", JSON.stringify(orders));
-        document.getElementById(`status-${id}`).innerText = "배송 완료";
-        alert("배송 상태가 변경되었습니다.");
-        db.ref("orders/" + id).update({ status: "배송 완료" });
-      }
-    }
+    filtered.forEach(order => {
+      const row = document.createElement("tr");
+      const products = order.items.map(i => `${i.name} (${i.qty}개)`).join("<br>");
+      row.innerHTML = `
+        <td>${order.id}</td>
+        <td>${order.customer.name}</td>
+        <td>${order.customer.address}</td>
+        <td>${order.customer.phone}</td>
+        <td>${products}</td>
+        <td id="status-${order.id}">${order.status}</td>
+        <td>
+          <button class="action-btn" onclick="viewDetail(${order.id})">상세</button>
+          <button class="action-btn" onclick="changeStatus(${order.id})">배송 완료</button>
+          <button class="action-btn" style="color:red;" onclick="deleteOrder(${order.id})">삭제</button>
+        </td>
+      `;
+      tbody.appendChild(row);
+    });
+  }
 
-    function deleteOrder(id) {
-      if (!confirm("이 주문을 삭제하시겠습니까?")) return;
-      const updated = orders.filter(o => o.id !== id);
-      localStorage.setItem("allOrders", JSON.stringify(updated));
-      db.ref("orders/" + id).remove();
-      location.reload();
+  function changeStatus(id) {
+    const index = orders.findIndex(o => o.id === id);
+    if (index !== -1) {
+      orders[index].status = "배송 완료";
+      localStorage.setItem("allOrders", JSON.stringify(orders));
+      document.getElementById(`status-${id}`).innerText = "배송 완료";
+      alert("배송 상태가 변경되었습니다.");
+      rtdb.ref("orders/" + id).update({ status: "배송 완료" });
     }
+  }
 
-    function downloadCSV() {
-      const header = ["주문번호", "이름", "주소", "연락처", "상품", "상태"];
-      const rows = orders.map(o => [
+  function deleteOrder(id) {
+    if (!confirm("이 주문을 삭제하시겠습니까?")) return;
+    const updated = orders.filter(o => o.id !== id);
+    localStorage.setItem("allOrders", JSON.stringify(updated));
+    rtdb.ref("orders/" + id).remove();
+    location.reload();
+  }
+
+  function downloadCSV() {
+    const header = ["주문번호", "이름", "주소", "연락처", "상품", "상태"];
+    const rows = orders.map(o => [
+      o.id,
+      o.customer.name,
+      o.customer.address,
+      o.customer.phone,
+      o.items.map(i => `${i.name}(${i.qty})`).join("; "),
+      o.status
+    ]);
+    let csvContent = [header, ...rows].map(e => e.join(",")).join("\\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "order_list.csv";
+    link.click();
+  }
+
+  function downloadXLSX() {
+    const wb = XLSX.utils.book_new();
+    const ws_data = [
+      ["주문번호", "이름", "주소", "연락처", "상품", "상태"],
+      ...orders.map(o => [
         o.id,
         o.customer.name,
         o.customer.address,
         o.customer.phone,
         o.items.map(i => `${i.name}(${i.qty})`).join("; "),
         o.status
-      ]);
+      ])
+    ];
+    const ws = XLSX.utils.aoa_to_sheet(ws_data);
+    XLSX.utils.book_append_sheet(wb, ws, "Orders");
+    XLSX.writeFile(wb, "orders.xlsx");
+  }
 
-      let csvContent = [header, ...rows].map(e => e.join(",")).join("\n");
-      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "order_list.csv";
-      link.click();
-    }
+  function viewDetail(id) {
+    const order = orders.find(o => o.id === id);
+    if (!order) return;
+    const content = `
+      <p><strong>주문번호:</strong> ${order.id}</p>
+      <p><strong>이름:</strong> ${order.customer.name}</p>
+      <p><strong>주소:</strong> ${order.customer.address}</p>
+      <p><strong>연락처:</strong> ${order.customer.phone}</p>
+      <p><strong>상태:</strong> ${order.status}</p>
+      <p><strong>상품:</strong><br>${order.items.map(i => `- ${i.name} (${i.qty}개)`).join("<br>")}</p>
+    `;
+    document.getElementById("modal-content").innerHTML = content;
+    document.getElementById("detail-modal").style.display = "flex";
+  }
 
-    function downloadXLSX() {
-      const wb = XLSX.utils.book_new();
-      const ws_data = [
-        ["주문번호", "이름", "주소", "연락처", "상품", "상태"],
-        ...orders.map(o => [
-          o.id,
-          o.customer.name,
-          o.customer.address,
-          o.customer.phone,
-          o.items.map(i => `${i.name}(${i.qty})`).join("; "),
-          o.status
-        ])
-      ];
-      const ws = XLSX.utils.aoa_to_sheet(ws_data);
-      XLSX.utils.book_append_sheet(wb, ws, "Orders");
-      XLSX.writeFile(wb, "orders.xlsx");
-    }
+  function closeModal() {
+    document.getElementById("detail-modal").style.display = "none";
+  }
 
-    function viewDetail(id) {
-      const order = orders.find(o => o.id === id);
-      if (!order) return;
-
-      const content = `
-        <p><strong>주문번호:</strong> ${order.id}</p>
-        <p><strong>이름:</strong> ${order.customer.name}</p>
-        <p><strong>주소:</strong> ${order.customer.address}</p>
-        <p><strong>연락처:</strong> ${order.customer.phone}</p>
-        <p><strong>상태:</strong> ${order.status}</p>
-        <p><strong>상품:</strong><br>${order.items.map(i => `- ${i.name} (${i.qty}개)`).join("<br>")}</p>
-      `;
-
-      document.getElementById("modal-content").innerHTML = content;
-      document.getElementById("detail-modal").style.display = "flex";
-    }
-
-    function closeModal() {
-      document.getElementById("detail-modal").style.display = "none";
-    }
-
-    renderOrders();
-  </script>
+  renderOrders();
+</script>
 
 </body>
 </html>

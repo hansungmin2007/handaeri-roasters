@@ -4,12 +4,30 @@
   <meta charset="UTF-8">
   <title>회원가입 - 한대리 로터스</title>
   <link rel="stylesheet" href="css/style.css">
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script> <!-- Firestore 추가 -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyB585bChkNk2ClCdkgq09j7m8-eo5163w",
+      authDomain: "handaeri-auth-test.firebaseapp.com",
+      projectId: "handaeri-auth-test",
+      storageBucket: "handaeri-auth-test.appspot.com",
+      messagingSenderId: "972715372745",
+      appId: "1:972715372745:web:bb80e07ae160c6beb32dd8",
+      measurementId: "G-8FV8RLZ52B"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore(); // Firestore 초기화
+  </script>
 </head>
 <body>
 
   <!-- ✅ 헤더 -->
   <header class="header">
-    <!-- 유틸 메뉴 -->
     <div class="util-menu">
       <ul>
         <li class="auth-menu"><a href="signup.html">회원가입</a></li>
@@ -21,8 +39,6 @@
         </li>
       </ul>
     </div>
-
-    <!-- 로고 -->
     <h1><a href="index.html" class="logo">한대리 로터스</a></h1>
   </header>
 
@@ -32,28 +48,21 @@
   <!-- 메인 -->
   <main class="hero">
     <h2>회원가입</h2>
-
-    <!-- 오류 메시지 표시 -->
     <p id="signup-error" style="color: red; display: none;"></p>
 
-    <!-- 회원가입 폼 -->
     <form id="signup-form" style="max-width: 400px; margin: 0 auto; text-align: left;">
       <label>이름<br>
-        <input type="text" name="name" required>
+        <input type="text" name="name" id="name" required>
       </label><br><br>
-
       <label>이메일<br>
         <input type="email" name="email" required>
       </label><br><br>
-
       <label>비밀번호<br>
         <input type="password" name="password" id="password" minlength="6" required>
       </label><br><br>
-
       <label>비밀번호 확인<br>
         <input type="password" name="confirm_password" id="confirm-password" minlength="6" required>
       </label><br><br>
-
       <button type="submit">회원가입</button>
     </form>
   </main>
@@ -66,44 +75,28 @@
   <!-- ✅ 로그인 상태 제어 + 로그아웃 처리 -->
   <script>
     const username = localStorage.getItem("username");
-
     if (username) {
-      const welcomeEl = document.getElementById("welcome");
-      if (welcomeEl) {
-        welcomeEl.innerHTML = `${username}님, 환영합니다!`;
-      }
-
+      document.getElementById("welcome").innerHTML = `${username}님, 환영합니다!`;
       document.getElementById("logout-menu").style.display = "inline";
       document.querySelectorAll(".auth-menu").forEach(el => el.style.display = "none");
 
-      const logoutBtn = document.getElementById("logout-btn");
-      if (logoutBtn) {
-        logoutBtn.addEventListener("click", () => {
-          localStorage.removeItem("username");
-          alert("로그아웃 되었습니다.");
-          window.location.href = "index.html";
-        });
-      }
+      document.getElementById("logout-btn").addEventListener("click", () => {
+        localStorage.removeItem("username");
+        alert("로그아웃 되었습니다.");
+        window.location.href = "index.html";
+      });
     }
   </script>
 
-  <!-- ✅ 회원가입 유효성 검사 -->
+  <!-- ✅ Firebase 회원가입 + Firestore 저장 -->
   <script>
-    const fakeRegisteredEmails = ["test@test.com", "coffee@roast.com"];
-
     document.getElementById("signup-form").addEventListener("submit", function (e) {
       e.preventDefault();
-
+      const name = document.getElementById("name").value;
       const email = document.querySelector('input[name="email"]').value;
       const pw = document.getElementById("password").value;
       const confirmPw = document.getElementById("confirm-password").value;
       const errorEl = document.getElementById("signup-error");
-
-      if (fakeRegisteredEmails.includes(email)) {
-        errorEl.innerText = "이미 가입된 이메일입니다.";
-        errorEl.style.display = "block";
-        return;
-      }
 
       if (pw !== confirmPw) {
         errorEl.innerText = "비밀번호가 일치하지 않습니다.";
@@ -111,8 +104,26 @@
         return;
       }
 
-      errorEl.style.display = "none";
-      alert("회원가입 성공!");
+      auth.createUserWithEmailAndPassword(email, pw)
+        .then((userCredential) => {
+          const uid = userCredential.user.uid;
+          localStorage.setItem("username", email);
+
+          // Firestore에 사용자 정보 저장
+          return db.collection("users").doc(uid).set({
+            name: name,
+            email: email,
+            createdAt: new Date()
+          });
+        })
+        .then(() => {
+          alert("회원가입 완료!");
+          window.location.href = "login.html";
+        })
+        .catch((error) => {
+          errorEl.innerText = "오류: " + error.message;
+          errorEl.style.display = "block";
+        });
     });
   </script>
 
