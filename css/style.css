@@ -5,8 +5,8 @@ body {
   margin: 0;
   padding: 0;
   font-family: 'Noto Sans KR', sans-serif;
-  background: #fdf8f3; /* 따뜻한 베이지 */
-  color: #3e2d23; /* 진한 브라운 */
+  background: #fdf8f3;
+  color: #3e2d23;
   line-height: 1.7;
 }
 
@@ -41,8 +41,9 @@ body {
   justify-content: flex-end;
   gap: 0.8rem;
   padding: 0.5rem 1rem;
-  background-color: #7c4e35;
+  background-color: #94684c;
   font-size: 0.9rem;
+  flex-wrap: wrap;
 }
 
 .util-menu a {
@@ -69,6 +70,7 @@ body {
 .hero h2 {
   font-size: 1.8rem;
   color: #4a3227;
+  margin-bottom: 1rem;
 }
 
 /* ==========================
@@ -84,6 +86,7 @@ select {
   font-size: 1rem;
   margin-top: 0.4rem;
   background-color: #fffdf9;
+  box-sizing: border-box;
 }
 
 label {
@@ -92,11 +95,16 @@ label {
   display: block;
 }
 
+label:not(:first-of-type) {
+  margin-top: 1rem;
+}
+
 /* ==========================
    버튼
 ========================== */
 button,
-.btn {
+.btn,
+.action-btn {
   background-color: #6a4c38;
   color: white;
   padding: 0.6rem 1.4rem;
@@ -109,7 +117,8 @@ button,
 }
 
 button:hover,
-.btn:hover {
+.btn:hover,
+.action-btn:hover {
   background-color: #543526;
 }
 
@@ -129,7 +138,7 @@ button:hover,
   background: #fffdf9;
   padding: 1.2rem;
   border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
   transition: transform 0.2s;
   text-align: left;
 }
@@ -139,12 +148,12 @@ button:hover,
 }
 
 .bean-card h3 {
-  margin-top: 0;
+  margin: 0 0 0.4rem 0;
   color: #5b3a2b;
 }
 
 .bean-card p {
-  margin: 0.4rem 0;
+  margin: 0.2rem 0;
 }
 
 /* ==========================
@@ -157,28 +166,22 @@ table {
   font-size: 0.95rem;
 }
 
-th, td {
+th,
+td {
   border: 1px solid #e5d9cc;
   padding: 0.8rem;
   text-align: center;
 }
 
 th {
-  background-color: #f0e6d8;
+  background-color: #eadac4;
   color: #3e2d23;
 }
 
 .action-btn {
-  background-color: #8b5e3c;
-  color: white;
   padding: 0.4rem 0.9rem;
-  border: none;
   border-radius: 4px;
   font-size: 0.9rem;
-}
-
-.action-btn:hover {
-  background-color: #6f4e37;
 }
 
 /* ==========================
@@ -191,10 +194,18 @@ th {
 
   .util-menu {
     justify-content: center;
-    flex-wrap: wrap;
   }
 
   .hero {
     padding: 2rem 1rem;
+  }
+
+  .header,
+  .footer {
+    padding: 1rem;
+  }
+
+  .bean-card {
+    padding: 1rem;
   }
 }
