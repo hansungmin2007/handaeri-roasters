@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>한대리 로터스</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+</head>
+<body class="bg-amber-50 text-gray-800">
+  <header class="bg-zinc-800 text-white py-4 text-center">
+    <h1 class="text-2xl font-bold"><a href="index.html" class="hover:underline">한대리 로터스</a></h1>
+  </header>
+
+  <main class="max-w-3xl mx-auto py-10 px-4">
+    <h2 class="text-xl font-semibold mb-6">👤 마이페이지</h2>
+
+    <section class="mb-8">
+      <div id="user-info" class="bg-white p-6 rounded shadow space-y-4">
+        <div>
+          <label class="block mb-1 font-medium">이름</label>
+          <input type="text" id="name-input" class="w-full border rounded px-3 py-2" />
+        </div>
+        <button onclick="updateName()" class="bg-zinc-800 text-white px-4 py-2 rounded hover:bg-zinc-700">이름 수정</button>
+        <button onclick="updatePassword()" class="ml-2 bg-zinc-800 text-white px-4 py-2 rounded">비밀번호 변경</button>
+        <button onclick="verifyEmail()" class="ml-2 bg-zinc-800 text-white px-4 py-2 rounded">이메일 인증</button>
+      </div>
+    </section>
+
+    <section>
+      <h3 class="text-lg font-semibold mb-4">📦 내 주문 목록</h3>
+      <div id="order-list" class="space-y-4"></div>
+    </section>
+  </main>
+
+  <footer class="bg-zinc-800 text-white py-4 text-center">&copy; 2025 한대리 로터스</footer>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyB585bChkNk2ClCdkgq09j7m8-eo5163w",
+      authDomain: "handaeri-auth-test.firebaseapp.com",
+      databaseURL: "https://handaeri-auth-test-default-rtdb.firebaseio.com",
+      projectId: "handaeri-auth-test"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+    const firestore = firebase.firestore();
+
+    const nameInput = document.getElementById("name-input");
+    const userInfoEl = document.getElementById("user-info");
+    const orderListEl = document.getElementById("order-list");
+
+    auth.onAuthStateChanged(async user => {
+      if (!user) {
+        alert("로그인이 필요합니다.");
+        location.href = "login.html";
+        return;
+      }
+
+      const userDoc = await firestore.collection("users").doc(user.uid).get();
+      if (userDoc.exists) {
+        nameInput.value = userDoc.data().name || "";
+      }
+
+      db.ref("orders").on("value", snapshot => {
+        const data = snapshot.val();
+        const orders = Object.entries(data || {}).filter(([id, order]) => order.customer.email === user.email);
+        orderListEl.innerHTML = "";
+
+        if (orders.length === 0) {
+          orderListEl.innerHTML = `<p class='text-gray-500'>주문 내역이 없습니다.</p>`;
+          return;
+        }
+
+        orders.forEach(([id, order]) => {
+          const card = document.createElement("div");
+          card.className = "bg-white rounded shadow p-4 space-y-2";
+          card.innerHTML = `
+            <p><strong>주문번호:</strong> <a href="order-detail.html?id=${id}" class="text-blue-600 hover:underline">${id}</a></p>
+            <p><strong>배송 상태:</strong> <span class="text-green-600">${order.status}</span></p>
+            <ul class="space-y-1">
+              ${order.items.map(i => `<li class="flex justify-between text-sm"><span>${i.name}</span><span>${i.qty}개</span></li>`).join("")}
+            </ul>
+            <button onclick="alert('주문 취소 문의는 고객센터로 연락 주세요.')" class="text-sm text-red-500 hover:underline">주문 취소 문의</button>
+          `;
+          orderListEl.appendChild(card);
+        });
+      });
+    });
+
+    function updatePassword() {
+      const email = auth.currentUser.email;
+      firebase.auth().sendPasswordResetEmail(email)
+        .then(() => alert("비밀번호 재설정 메일이 발송되었습니다."))
+        .catch(err => alert("오류: " + err.message));
+    }
+
+    function verifyEmail() {
+      auth.currentUser.sendEmailVerification()
+        .then(() => alert("인증 메일이 발송되었습니다."))
+        .catch(err => alert("오류: " + err.message));
+    }
+
+    function updateName() {
+      const newName = nameInput.value.trim();
+      if (!newName) return alert("이름을 입력하세요.");
+
+      const user = auth.currentUser;
+      firestore.collection("users").doc(user.uid).update({ name: newName })
+        .then(() => alert("이름이 수정되었습니다."))
+        .catch(err => alert("오류: " + err.message));
+    }
+  </script>
+</body>
+</html>

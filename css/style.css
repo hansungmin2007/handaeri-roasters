@@ -5,16 +5,17 @@ body {
   font-family: 'Noto Sans KR', sans-serif;
   margin: 0;
   padding: 0;
-  background: #fdfaf6;
-  color: #333;
+  background: #faf3e0;
+  color: #3b2f2f;
+  line-height: 1.6;
 }
 
 /* ==========================
    헤더 / 푸터
 ========================== */
 .header, .footer {
-  background: #2e2b28;
-  color: white;
+  background: #6f4e37;
+  color: #fff;
   padding: 1rem;
   text-align: center;
 }
@@ -24,10 +25,12 @@ body {
 }
 
 /* ==========================
-   로고 링크
+   로고
 ========================== */
 .logo {
-  color: white;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #fff;
   text-decoration: none;
 }
 
@@ -37,9 +40,10 @@ body {
 .util-menu {
   display: flex;
   justify-content: flex-end;
+  gap: 0.5rem;
   padding-right: 1rem;
   font-size: 0.9rem;
-  margin-bottom: 0.5rem;
+  background: #8b5e3c;
 }
 
 .util-menu ul {
@@ -47,13 +51,13 @@ body {
   display: flex;
   gap: 0.5rem;
   margin: 0;
-  padding: 0;
+  padding: 0.5rem 1rem;
 }
 
 .util-menu li::after {
   content: "|";
   margin-left: 0.5rem;
-  color: #888;
+  color: #ccc;
 }
 
 .util-menu li:last-child::after {
@@ -63,16 +67,16 @@ body {
 .util-menu a {
   color: white;
   text-decoration: none;
-  opacity: 0.8;
+  opacity: 0.9;
 }
 
 .util-menu a:hover {
-  opacity: 1;
   text-decoration: underline;
+  opacity: 1;
 }
 
 /* ==========================
-   내비게이션 바
+   내비게이션
 ========================== */
 .navbar ul {
   list-style: none;
@@ -84,7 +88,7 @@ body {
 }
 
 .navbar a {
-  color: white;
+  color: #fff;
   text-decoration: none;
   font-weight: bold;
 }
@@ -99,59 +103,52 @@ body {
 .hero {
   text-align: center;
   padding: 4rem 1rem;
-  background: #e9e2d0;
+  background: #f7efe5;
 }
 
 /* ==========================
-   폼 요소 (회원가입/로그인)
+   폼 요소
 ========================== */
 input[type="text"],
 input[type="email"],
-input[type="password"] {
+input[type="password"],
+input[type="number"],
+textarea {
   width: 100%;
-  padding: 0.5rem;
+  padding: 0.6rem;
   margin-top: 0.3rem;
   border: 1px solid #ccc;
-  border-radius: 6px;
+  border-radius: 8px;
   box-sizing: border-box;
   font-size: 1rem;
+  background: #fffdfa;
 }
 
 /* ==========================
-   버튼 공통 스타일
+   버튼
 ========================== */
 button,
 button[type="submit"],
 .btn {
-  background-color: #2e2b28;
+  background-color: #6f4e37;
   color: white;
-  padding: 0.5rem 1.2rem;
+  padding: 0.6rem 1.2rem;
   border: none;
   border-radius: 6px;
   font-size: 1rem;
   cursor: pointer;
+  transition: background-color 0.3s;
 }
 
 button:hover,
 .btn:hover {
-  background-color: #44413d;
+  background-color: #5a3d2b;
 }
 
 /* ==========================
-   반응형 (모바일 대응)
+   반응형
 ========================== */
 @media screen and (max-width: 480px) {
-  .hero {
-    padding: 2rem 1rem;
-  }
-
-  input[type="text"],
-  input[type="email"],
-  input[type="password"],
-  button {
-    font-size: 1rem;
-  }
-
   .navbar ul {
     flex-direction: column;
     align-items: center;
@@ -160,12 +157,15 @@ button:hover,
 
   .util-menu {
     justify-content: center;
-    padding-right: 0;
+  }
+
+  .hero {
+    padding: 2rem 1rem;
   }
 }
 
 /* ==========================
-   원두 목록 (Bean List)
+   원두 카드
 ========================== */
 .bean-list {
   display: grid;
@@ -173,46 +173,61 @@ button:hover,
   gap: 1.5rem;
   padding: 2rem;
   max-width: 1200px;
-  margin: 0 auto;
+  margin: auto;
 }
 
 .bean-card {
   background: white;
   border-radius: 12px;
-  padding: 1rem;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  padding: 1rem 1.5rem;
+  box-shadow: 0 0 10px rgba(0,0,0,0.07);
+  transition: transform 0.2s;
   text-align: left;
 }
 
+.bean-card:hover {
+  transform: translateY(-5px);
+}
+
+.bean-card h3 {
+  margin-top: 0;
+  color: #5c4033;
+}
+
+.bean-card p {
+  margin: 0.5rem 0;
+}
+
 /* ==========================
-   관리자 페이지 테이블
+   테이블 (관리자)
 ========================== */
 table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 1rem;
+  font-size: 0.95rem;
 }
 
 th, td {
-  border: 1px solid #ccc;
-  padding: 0.6rem;
+  border: 1px solid #ddd;
+  padding: 0.7rem;
   text-align: center;
 }
 
 th {
-  background-color: #f0f0f0;
+  background-color: #eee3d3;
+  color: #3b2f2f;
 }
 
 .action-btn {
-  padding: 0.3rem 0.7rem;
+  padding: 0.3rem 0.8rem;
   margin: 0.2rem;
-  cursor: pointer;
-  background-color: #2e2b28;
+  background-color: #8b5e3c;
   color: white;
   border: none;
   border-radius: 4px;
 }
 
 .action-btn:hover {
-  background-color: #44413d;
+  background-color: #6f4e37;
 }

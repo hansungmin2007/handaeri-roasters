@@ -1,43 +1,37 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>한대리 로터스</title>
   <link rel="stylesheet" href="css/style.css">
+  <!-- ✅ Tailwind (선택적) -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- ✅ Firebase compat SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyB585bChkNk2ClCdkgq09j7m8-eo5163w",
-    authDomain: "handaeri-auth-test.firebaseapp.com",
-    projectId: "handaeri-auth-test",
-    storageBucket: "handaeri-auth-test.appspot.com",
-    messagingSenderId: "972715372745",
-    appId: "1:972715372745:web:bb80e07ae160c6beb32dd8",
-    measurementId: "G-8FV8RLZ52B"
-  };
+  <!-- ✅ Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
 
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
-</script>
-
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyB585bChkNk2ClCdkgq09j7m8-eo5163w",
+      authDomain: "handaeri-auth-test.firebaseapp.com",
+      projectId: "handaeri-auth-test",
+      storageBucket: "handaeri-auth-test.appspot.com",
+      messagingSenderId: "972715372745",
+      appId: "1:972715372745:web:bb80e07ae160c6beb32dd8",
+      measurementId: "G-8FV8RLZ52B"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
 </head>
-<body>
 
+<body class="bg-amber-50 text-gray-800">
   <!-- ✅ 상단 헤더 -->
   <header class="header">
     <div class="util-menu">
-      <ul>
-        <li class="auth-menu"><a href="signup.html">회원가입</a></li>
-        <li class="auth-menu"><a href="login.html">로그인</a></li>
-        <li><a href="#">주문조회</a></li>
-        <li><a href="cart.html">장바구니</a></li>
-        <li id="logout-menu" style="display: none;"><button id="logout-btn">로그아웃</button></li>
-      </ul>
+      <ul id="menu-list"></ul>
     </div>
     <h1><a href="index.html" class="logo">한대리 로터스</a></h1>
     <nav class="navbar">
@@ -52,36 +46,44 @@
   <p id="welcome" style="text-align: right; padding-right: 1rem;"></p>
 
   <!-- 메인 -->
-  <main class="hero">
-    <h2>한 잔의 커피로 연결되는 마음</h2>
-    <p>로스터 한대리가 선별한 특별한 원두를 만나보세요.</p>
+  <main class="hero text-center py-10 px-4">
+    <h2 class="text-2xl font-semibold">한 잔의 커피는 기억을 깨우고,<br>한 장의 사진은 그 기억을 남깁니다.</h2>
+    <p class="mt-4">로스터 한대리가 선별한 특별한 원두를 만나보세요.</p>
   </main>
 
   <!-- 푸터 -->
-  <footer class="footer">&copy; 2025 한대리 로터스</footer>
+  <footer class="footer text-center py-4 bg-zinc-800 text-white">
+    &copy; 2025 한대리 로터스
+  </footer>
 
-  <!-- ✅ 로그인 상태 확인 및 UI 처리 -->
+  <!-- ✅ 로그인 상태 UI 처리 -->
   <script>
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const welcomeEl = document.getElementById("welcome");
+    const menuEl = document.getElementById("menu-list");
+
     auth.onAuthStateChanged(async (user) => {
       if (user) {
-        const uid = user.uid;
         let name = user.email;
-
         try {
-          const doc = await db.collection("users").doc(uid).get();
+          const doc = await db.collection("users").doc(user.uid).get();
           if (doc.exists && doc.data().name) {
             name = doc.data().name;
           }
         } catch (e) {
-          console.error("사용자 이름 가져오기 실패:", e);
+          console.error("이름 불러오기 실패:", e);
         }
 
-        // UI 업데이트
-        document.getElementById("welcome").innerText = `${name}님, 환영합니다!`;
-        document.getElementById("logout-menu").style.display = "inline";
-        document.querySelectorAll(".auth-menu").forEach(el => el.style.display = "none");
+        welcomeEl.innerText = `${name}님, 환영합니다!`;
 
-        // 로그아웃 처리
+        menuEl.innerHTML = `
+          <li><a href="order-summary.html">주문조회</a></li>
+          <li><a href="mypage.html">마이페이지</a></li>
+          <li><a href="cart.html">장바구니</a></li>
+          <li><button id="logout-btn">로그아웃</button></li>
+        `;
+
         document.getElementById("logout-btn").addEventListener("click", () => {
           auth.signOut().then(() => {
             localStorage.clear();
@@ -91,11 +93,15 @@
         });
 
       } else {
-        // 로그인 상태 아닐 때: 기본 UI 유지
-        console.log("로그인 안 됨");
+        menuEl.innerHTML = `
+          <li><a href="signup.html">회원가입</a></li>
+          <li><a href="login.html">로그인</a></li>
+          <li><a href="order-summary.html">주문조회</a></li>
+          <li><a href="cart.html">장바구니</a></li>
+        `;
+        welcomeEl.innerText = "";
       }
     });
   </script>
-
 </body>
 </html>

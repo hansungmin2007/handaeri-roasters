@@ -2,227 +2,149 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>관리자 페이지 - 한대리 로터스</title>
-  <link rel="stylesheet" href="css/style.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <title>관리자 - 주문/상품 관리</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-  <style>
-    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-    th, td { border: 1px solid #ccc; padding: 0.6rem; text-align: center; }
-    th { background-color: #f0f0f0; }
-    .action-btn { padding: 0.3rem 0.7rem; margin: 0.2rem; cursor: pointer; }
-    #detail-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #00000088; z-index: 1000; justify-content: center; align-items: center; }
-    #detail-modal .modal-content { background: #fff; padding: 2rem; border-radius: 10px; width: 90%; max-width: 500px; position: relative; }
-    #detail-modal .modal-content button { position: absolute; top: 10px; right: 10px; }
-  </style>
 </head>
-<body>
+<body class="bg-zinc-50 text-gray-800">
+  <header class="bg-zinc-800 text-white py-4 text-center">
+    <h1 class="text-2xl font-bold">관리자 페이지</h1>
+  </header>
 
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyB585bChkNk2ClCdkgq09j7m8-eo5163w",
-    authDomain: "handaeri-auth-test.firebaseapp.com",
-    databaseURL: "https://handaeri-auth-test-default-rtdb.firebaseio.com",
-    projectId: "handaeri-auth-test",
-    storageBucket: "handaeri-auth-test.appspot.com",
-    messagingSenderId: "972715372745",
-    appId: "1:972715372745:web:bb80e07ae160c6beb32dd8",
-    measurementId: "G-8FV8RLZ52B"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
-  const rtdb = firebase.database();
+  <main class="max-w-5xl mx-auto py-10 px-4 space-y-10">
+    <section>
+      <h2 class="text-xl font-bold mb-4">📦 주문 목록</h2>
+      <div id="order-list" class="space-y-4"></div>
+    </section>
 
-  function saveOrderToRTDB(order) {
-    rtdb.ref("orders/" + order.id).set(order);
-  }
+    <section>
+      <h2 class="text-xl font-bold mb-4">☕ 상품 관리</h2>
+      <form id="bean-form" class="space-y-2">
+        <input type="text" placeholder="이름" id="bean-name" class="w-full p-2 border rounded">
+        <input type="text" placeholder="지역" id="bean-region" class="w-full p-2 border rounded">
+        <input type="text" placeholder="가공방식" id="bean-process" class="w-full p-2 border rounded">
+        <input type="number" placeholder="가격" id="bean-price" class="w-full p-2 border rounded">
+        <button type="submit" class="bg-zinc-800 text-white px-4 py-2 rounded">추가 / 수정</button>
+      </form>
+      <div id="bean-list" class="grid grid-cols-2 gap-4 mt-6"></div>
+    </section>
+  </main>
 
-  auth.onAuthStateChanged(user => {
-    if (!user) {
-      alert("로그인이 필요합니다.");
-      location.href = "login.html";
-    } else {
-      db.collection("users").doc(user.uid).get().then(doc => {
-        if (!doc.exists || doc.data().role !== "admin") {
-          alert("관리자 권한이 필요합니다.");
-          location.href = "index.html";
-        } else {
-          rtdb.ref("orders").once("value").then(snapshot => {
-            const data = snapshot.val();
-            orders = Object.values(data || []);
-            renderOrders();
-          });
-        }
+  <footer class="bg-zinc-800 text-white py-4 text-center">&copy; 2025 한대리 로터스</footer>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyB585bChkNk2ClCdkgq09j7m8-eo5163w",
+      authDomain: "handaeri-auth-test.firebaseapp.com",
+      databaseURL: "https://handaeri-auth-test-default-rtdb.firebaseio.com",
+      projectId: "handaeri-auth-test"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const rtdb = firebase.database();
+
+    const orderList = document.getElementById("order-list");
+    const beanForm = document.getElementById("bean-form");
+    const beanList = document.getElementById("bean-list");
+
+    // 주문 실시간 조회 및 상태 변경
+    rtdb.ref("orders").on("value", snap => {
+      const orders = snap.val() || {};
+      orderList.innerHTML = "";
+      Object.entries(orders).forEach(([id, order]) => {
+        const div = document.createElement("div");
+        div.className = "bg-white rounded shadow p-4 space-y-2";
+        div.innerHTML = `
+          <p><strong>주문번호:</strong> ${id}</p>
+          <p><strong>고객:</strong> ${order.customer.name}</p>
+          <p><strong>상태:</strong>
+            <select onchange="updateStatus('${id}', this.value)" class="border rounded px-2 py-1">
+              <option value="배송 준비 중" ${order.status === '배송 준비 중' ? 'selected' : ''}>배송 준비 중</option>
+              <option value="배송 완료" ${order.status === '배송 완료' ? 'selected' : ''}>배송 완료</option>
+            </select>
+          </p>
+        `;
+        orderList.appendChild(div);
+      });
+    });
+
+    window.updateStatus = function(id, newStatus) {
+      rtdb.ref("orders/" + id).update({ status: newStatus });
+    };
+
+    // 상품 관리
+    function renderBeans() {
+      db.collection("beans").get().then(snapshot => {
+        beanList.innerHTML = "";
+        snapshot.forEach(doc => {
+          const b = doc.data();
+          const div = document.createElement("div");
+          div.className = "bg-white border rounded p-4 space-y-1";
+          div.innerHTML = `
+            <p><strong>${b.name}</strong></p>
+            <p>${b.region} | ${b.process}</p>
+            <p>${b.price.toLocaleString()}원</p>
+            <button onclick="editBean('${doc.id}', '${b.name}', '${b.region}', '${b.process}', ${b.price})" class="text-blue-600">수정</button>
+            <button onclick="deleteBean('${doc.id}')" class="text-red-600 ml-2">삭제</button>
+          `;
+          beanList.appendChild(div);
+        });
       });
     }
-  });
-</script>
 
-<header class="header">
-  <h1><a href="index.html" class="logo">한대리 로터스</a></h1>
-</header>
-
-<main class="hero">
-  <h2>📦 관리자 주문 목록</h2>
-
-  <div style="max-width: 800px; margin: 1rem auto; display: flex; gap: 1rem; align-items: center;">
-    <input type="text" id="search-input" placeholder="이름 검색" style="padding: 0.4rem; flex: 1;">
-    <select id="status-filter" style="padding: 0.4rem;">
-      <option value="">전체</option>
-      <option value="배송 준비 중">배송 준비 중</option>
-      <option value="배송 완료">배송 완료</option>
-    </select>
-    <button onclick="renderOrders()">검색</button>
-    <button onclick="downloadCSV()">CSV 저장</button>
-    <button onclick="downloadXLSX()">엑셀 저장</button>
-  </div>
-
-  <div style="max-width: 1000px; margin: auto;">
-    <table>
-      <thead>
-        <tr>
-          <th>주문번호</th>
-          <th>이름</th>
-          <th>주소</th>
-          <th>연락처</th>
-          <th>상품</th>
-          <th>상태</th>
-          <th>관리</th>
-        </tr>
-      </thead>
-      <tbody id="order-body"></tbody>
-    </table>
-  </div>
-</main>
-
-<div id="detail-modal">
-  <div class="modal-content">
-    <button onclick="closeModal()">✖</button>
-    <h3>📝 주문 상세</h3>
-    <div id="modal-content" style="margin-top:1rem;"></div>
-  </div>
-</div>
-
-<footer class="footer">
-  &copy; 2025 한대리 로터스
-</footer>
-
-<script>
-  let orders = [];
-
-  function renderOrders() {
-    const tbody = document.getElementById("order-body");
-    const search = document.getElementById("search-input").value.toLowerCase();
-    const filter = document.getElementById("status-filter").value;
-    tbody.innerHTML = "";
-
-    const filtered = orders.filter(order => {
-      const matchName = order.customer.name.toLowerCase().includes(search);
-      const matchStatus = filter ? order.status === filter : true;
-      return matchName && matchStatus;
+    beanForm.addEventListener("submit", e => {
+      e.preventDefault();
+      const name = document.getElementById("bean-name").value;
+      const region = document.getElementById("bean-region").value;
+      const process = document.getElementById("bean-process").value;
+      const price = parseInt(document.getElementById("bean-price").value);
+      if (!name || !region || !process || !price) return alert("모든 항목을 입력하세요");
+      const beanData = { name, region, process, price };
+      if (beanForm.dataset.editingId) {
+        db.collection("beans").doc(beanForm.dataset.editingId).update(beanData).then(() => {
+          delete beanForm.dataset.editingId;
+          beanForm.reset();
+          renderBeans();
+        });
+      } else {
+        db.collection("beans").add(beanData).then(() => {
+          beanForm.reset();
+          renderBeans();
+        });
+      }
     });
 
-    if (filtered.length === 0) {
-      tbody.innerHTML = "<tr><td colspan='7'>주문 정보가 없습니다.</td></tr>";
-      return;
-    }
+    window.editBean = function(id, name, region, process, price) {
+      document.getElementById("bean-name").value = name;
+      document.getElementById("bean-region").value = region;
+      document.getElementById("bean-process").value = process;
+      document.getElementById("bean-price").value = price;
+      beanForm.dataset.editingId = id;
+    };
 
-    filtered.forEach(order => {
-      const row = document.createElement("tr");
-      const products = order.items.map(i => `${i.name} (${i.qty}개)`).join("<br>");
-      row.innerHTML = `
-        <td>${order.id}</td>
-        <td>${order.customer.name}</td>
-        <td>${order.customer.address}</td>
-        <td>${order.customer.phone}</td>
-        <td>${products}</td>
-        <td id="status-${order.id}">${order.status}</td>
-        <td>
-          <button class="action-btn" onclick="viewDetail(${order.id})">상세</button>
-          <button class="action-btn" onclick="changeStatus(${order.id})">배송 완료</button>
-          <button class="action-btn" style="color:red;" onclick="deleteOrder(${order.id})">삭제</button>
-        </td>
-      `;
-      tbody.appendChild(row);
+    window.deleteBean = function(id) {
+      if (confirm("삭제하시겠습니까?")) {
+        db.collection("beans").doc(id).delete().then(renderBeans);
+      }
+    };
+
+    auth.onAuthStateChanged(user => {
+      if (!user) location.href = "login.html";
+      else {
+        db.collection("users").doc(user.uid).get().then(doc => {
+          if (!doc.exists || doc.data().role !== "admin") {
+            alert("관리자 전용 페이지입니다.");
+            location.href = "index.html";
+          } else {
+            renderBeans();
+          }
+        });
+      }
     });
-  }
-
-  function changeStatus(id) {
-    const index = orders.findIndex(o => o.id === id);
-    if (index !== -1) {
-      orders[index].status = "배송 완료";
-      document.getElementById(`status-${id}`).innerText = "배송 완료";
-      alert("배송 상태가 변경되었습니다.");
-      rtdb.ref("orders/" + id).update({ status: "배송 완료" });
-    }
-  }
-
-  function deleteOrder(id) {
-    if (!confirm("이 주문을 삭제하시겠습니까?")) return;
-    orders = orders.filter(o => o.id !== id);
-    rtdb.ref("orders/" + id).remove();
-    renderOrders();
-  }
-
-  function downloadCSV() {
-    const header = ["주문번호", "이름", "주소", "연락처", "상품", "상태"];
-    const rows = orders.map(o => [
-      o.id,
-      o.customer.name,
-      o.customer.address,
-      o.customer.phone,
-      o.items.map(i => `${i.name}(${i.qty})`).join("; "),
-      o.status
-    ]);
-    const csvContent = [header, ...rows].map(e => e.join(",")).join("\n");
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "order_list.csv";
-    link.click();
-  }
-
-  function downloadXLSX() {
-    const wb = XLSX.utils.book_new();
-    const ws_data = [
-      ["주문번호", "이름", "주소", "연락처", "상품", "상태"],
-      ...orders.map(o => [
-        o.id,
-        o.customer.name,
-        o.customer.address,
-        o.customer.phone,
-        o.items.map(i => `${i.name}(${i.qty})`).join("; "),
-        o.status
-      ])
-    ];
-    const ws = XLSX.utils.aoa_to_sheet(ws_data);
-    XLSX.utils.book_append_sheet(wb, ws, "Orders");
-    XLSX.writeFile(wb, "orders.xlsx");
-  }
-
-  function viewDetail(id) {
-    const order = orders.find(o => o.id === id);
-    if (!order) return;
-    const content = `
-      <p><strong>주문번호:</strong> ${order.id}</p>
-      <p><strong>이름:</strong> ${order.customer.name}</p>
-      <p><strong>주소:</strong> ${order.customer.address}</p>
-      <p><strong>연락처:</strong> ${order.customer.phone}</p>
-      <p><strong>상태:</strong> ${order.status}</p>
-      <p><strong>상품:</strong><br>${order.items.map(i => `- ${i.name} (${i.qty}개)`).join("<br>")}</p>
-    `;
-    document.getElementById("modal-content").innerHTML = content;
-    document.getElementById("detail-modal").style.display = "flex";
-  }
-
-  function closeModal() {
-    document.getElementById("detail-modal").style.display = "none";
-  }
-</script>
-
+  </script>
 </body>
 </html>

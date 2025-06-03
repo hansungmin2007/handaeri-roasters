@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>원두 상세 - 한대리 로터스</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <header class="header">
+    <h1><a href="index.html" class="logo">한대리 로터스</a></h1>
+  </header>
+
+  <main class="hero">
+    <h2>☕ 원두 상세 정보</h2>
+    <div id="bean-detail" class="bean-card"></div>
+  </main>
+
+  <footer class="footer">
+    &copy; 2025 한대리 로터스
+  </footer>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyB585bChkNk2ClCdkgq09j7m8-eo5163w",
+      authDomain: "handaeri-auth-test.firebaseapp.com",
+      projectId: "handaeri-auth-test"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const params = new URLSearchParams(location.search);
+    const id = params.get("id");
+
+    const detailEl = document.getElementById("bean-detail");
+
+    db.collection("beans").doc(id).get().then(doc => {
+      if (!doc.exists) {
+        detailEl.innerHTML = '<p>존재하지 않는 원두입니다.</p>';
+        return;
+      }
+
+      const bean = doc.data();
+      detailEl.innerHTML = `
+        <h3>${bean.name}</h3>
+        <p><strong>지역:</strong> ${bean.region}</p>
+        <p><strong>가공방식:</strong> ${bean.process}</p>
+        <p><strong>노트:</strong> ${bean.notes}</p>
+        <p><strong>가격:</strong> ${bean.price.toLocaleString()} 원</p>
+        <button onclick="history.back()">목록으로 돌아가기</button>
+      `;
+    });
+  </script>
+</body>
+</html>

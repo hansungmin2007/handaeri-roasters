@@ -5,7 +5,7 @@
   <title>로그인 - 한대리 로터스</title>
   <link rel="stylesheet" href="css/style.css" />
 
-  <!-- ✅ Firebase compat SDK -->
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
@@ -15,7 +15,7 @@
       apiKey: "AIzaSyB55BGkNckk2ClCdkgqp0f9iZm8-o5163w",
       authDomain: "handaeri-auth-test.firebaseapp.com",
       projectId: "handaeri-auth-test",
-      storageBucket: "handaeri-auth-test.appspot.com", // ✅ 수정됨
+      storageBucket: "handaeri-auth-test.appspot.com",
       messagingSenderId: "972715732745",
       appId: "1:972715732745:web:bbb9e07ac16cc6beb32dd8",
       measurementId: "G-8FV8ZRL528"
@@ -29,18 +29,17 @@
 <body>
   <header class="header">
     <div class="util-menu">
-      <ul>
+      <ul id="menu-list">
         <li class="auth-menu"><a href="signup.html">회원가입</a></li>
         <li class="auth-menu"><a href="login.html">로그인</a></li>
         <li><a href="#">주문조회</a></li>
         <li><a href="cart.html">장바구니</a></li>
+        <li class="user-menu" style="display: none;"><a href="#">마이페이지</a></li>
         <li id="logout-menu" style="display: none;"><button id="logout-btn">로그아웃</button></li>
       </ul>
     </div>
     <h1><a href="index.html" class="logo">한대리 로터스</a></h1>
   </header>
-
-  <p id="welcome" style="text-align: right; padding-right: 1rem;"></p>
 
   <main class="hero">
     <h2>로그인</h2>
@@ -55,18 +54,32 @@
   <footer class="footer">&copy; 2025 한대리 로터스</footer>
 
   <script>
-    const username = localStorage.getItem("username");
-    if (username) {
-      document.getElementById("welcome").innerText = `${username}님, 환영합니다!`;
-      document.getElementById("logout-menu").style.display = "inline";
-      document.querySelectorAll(".auth-menu").forEach(el => el.style.display = "none");
-      document.getElementById("logout-btn").addEventListener("click", () => {
-        localStorage.removeItem("username");
-        localStorage.removeItem("email");
-        alert("로그아웃 되었습니다.");
-        window.location.href = "index.html";
-      });
-    }
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        const uid = user.uid;
+        let name = user.email;
+
+        try {
+          const doc = await db.collection("users").doc(uid).get();
+          if (doc.exists && doc.data().name) {
+            name = doc.data().name;
+          }
+        } catch (e) {
+          console.error("사용자 이름 가져오기 실패:", e);
+        }
+
+        document.querySelectorAll(".auth-menu").forEach(el => el.style.display = "none");
+        document.querySelector(".user-menu").style.display = "inline";
+        document.getElementById("logout-menu").style.display = "inline";
+
+        document.getElementById("logout-btn").addEventListener("click", () => {
+          auth.signOut().then(() => {
+            localStorage.clear();
+            window.location.href = "index.html";
+          });
+        });
+      }
+    });
 
     document.getElementById("login-form").addEventListener("submit", function (e) {
       e.preventDefault();
@@ -86,7 +99,6 @@
           const name = doc.exists && doc.data().name ? doc.data().name : email;
           localStorage.setItem("username", name);
           localStorage.setItem("email", email);
-          alert("로그인 성공!");
           window.location.href = "index.html";
         })
         .catch(error => {
