@@ -7,7 +7,7 @@
 </head>
 <body>
   <header class="header">
-    <h1><a href="01_index.html" class="logo">한대리 로터스</a></h1>
+    <h1><a href="index.html" class="logo">한대리 로터스</a></h1>
   </header>
 
   <main class="hero">
@@ -20,7 +20,7 @@
   </footer>
 
   <script>
-    fetch("02-1_beans.json") // ← beans.json 위치에 따라 경로 조정
+    fetch("beans.json") // ← beans.json 위치에 따라 경로 조정
       .then(response => response.json())
       .then(data => {
         const listEl = document.getElementById("bean-list");
