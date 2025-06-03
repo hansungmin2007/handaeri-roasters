@@ -15,13 +15,17 @@
 
   <main class="max-w-2xl mx-auto py-10 px-4">
     <h2 class="text-xl font-semibold mb-6">📄 주문 상세</h2>
-    <div id="detail-container" class="bg-white rounded-lg shadow p-6 space-y-4"></div>
+    <div id="detail-container" class="bg-white rounded-lg shadow p-6 space-y-4">
+      <p class="text-gray-500">로딩 중...</p>
+    </div>
     <div class="text-center mt-6">
       <button onclick="history.back()" class="bg-zinc-800 text-white px-4 py-2 rounded hover:bg-zinc-700">🔙 돌아가기</button>
     </div>
   </main>
 
-  <footer class="bg-zinc-800 text-white py-4 text-center">&copy; 2025 한대리 로터스</footer>
+  <footer class="bg-zinc-800 text-white py-4 text-center">
+    &copy; 2025 한대리 로터스
+  </footer>
 
   <script>
     const firebaseConfig = {
@@ -39,29 +43,33 @@
 
     db.ref("orders/" + id).once("value").then(snapshot => {
       const order = snapshot.val();
+
       if (!order) {
         container.innerHTML = `<p class='text-center text-red-500'>해당 주문을 찾을 수 없습니다.</p>`;
         return;
       }
 
-      const itemsHTML = order.items.map(i => `
-        <li class="flex justify-between">
+      const items = order.items || [];
+      const itemsHTML = items.length > 0 ? items.map(i => `
+        <li class="flex justify-between text-sm">
           <span>${i.name}</span>
           <span>${i.qty}개</span>
         </li>
-      `).join("");
+      `).join("") : "<li class='text-gray-500'>상품 정보 없음</li>";
 
       container.innerHTML = `
         <p><strong>📄 주문번호:</strong> ${id}</p>
-        <p><strong>👤 이름:</strong> ${order.customer.name}</p>
-        <p><strong>📞 연락처:</strong> ${order.customer.phone}</p>
-        <p><strong>🏠 주소:</strong> ${order.customer.address}</p>
-        <p><strong>🚚 배송 상태:</strong> ${order.status}</p>
+        <p><strong>👤 이름:</strong> ${order.customer?.name || "-"}</p>
+        <p><strong>📞 연락처:</strong> ${order.customer?.phone || "-"}</p>
+        <p><strong>🏠 주소:</strong> ${order.customer?.address || "-"}</p>
+        <p><strong>🚚 배송 상태:</strong> ${order.status || "-"}</p>
         <div>
           <p class="font-semibold mt-4 mb-2">🛍 상품 목록:</p>
-          <ul class="bg-gray-100 rounded p-3 space-y-1">${itemsHTML}</ul>
+          <ul class="bg-gray-100 rounded p-3 space-y-1 list-none">${itemsHTML}</ul>
         </div>
       `;
+    }).catch(err => {
+      container.innerHTML = `<p class="text-red-500">오류가 발생했습니다: ${err.message}</p>`;
     });
   </script>
 </body>

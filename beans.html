@@ -29,7 +29,7 @@
     const firebaseConfig = {
       apiKey: "AIzaSyB585bChkNk2ClCdkgq09j7m8-eo5163w",
       authDomain: "handaeri-auth-test.firebaseapp.com",
-      projectId: "handaeri-auth-test",
+      projectId: "handaeri-auth-test"
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
@@ -44,13 +44,15 @@
         div.innerHTML = `
           ${bean.imageUrl ? `<img src="${bean.imageUrl}" class="w-full h-48 object-cover rounded">` : ""}
           <h3 class="text-lg font-bold">${bean.name}</h3>
-          <p><strong>용도:</strong> ${bean.region}</p>
-          <p><strong>화력:</strong> ${bean.process}</p>
+          <p><strong>지역:</strong> ${bean.region}</p>
+          <p><strong>가공방식:</strong> ${bean.process}</p>
           <p><strong>가격:</strong> ${bean.price?.toLocaleString() || 0} 원</p>
           <a href="bean-detail.html?id=${doc.id}" class="inline-block bg-zinc-800 text-white px-3 py-1 rounded hover:bg-zinc-700">상세 보기</a>
         `;
         beanListEl.appendChild(div);
       });
+    }).catch(err => {
+      beanListEl.innerHTML = `<p class='text-red-500'>원두 목록을 불러오는 데 실패했습니다: ${err.message}</p>`;
     });
   </script>
 </body>
