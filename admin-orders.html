@@ -51,7 +51,7 @@
     const beanForm = document.getElementById("bean-form");
     const beanList = document.getElementById("bean-list");
 
-    // 주문 실시간 조회 및 상태 변경
+    // 주문 목록 로드
     rtdb.ref("orders").on("value", snap => {
       const orders = snap.val() || {};
       orderList.innerHTML = "";
@@ -76,7 +76,7 @@
       rtdb.ref("orders/" + id).update({ status: newStatus });
     };
 
-    // 상품 관리
+    // 원두 목록 표시
     function renderBeans() {
       db.collection("beans").get().then(snapshot => {
         beanList.innerHTML = "";
@@ -96,6 +96,7 @@
       });
     }
 
+    // 상품 등록/수정
     beanForm.addEventListener("submit", e => {
       e.preventDefault();
       const name = document.getElementById("bean-name").value;
@@ -103,6 +104,7 @@
       const process = document.getElementById("bean-process").value;
       const price = parseInt(document.getElementById("bean-price").value);
       if (!name || !region || !process || !price) return alert("모든 항목을 입력하세요");
+
       const beanData = { name, region, process, price };
       if (beanForm.dataset.editingId) {
         db.collection("beans").doc(beanForm.dataset.editingId).update(beanData).then(() => {
@@ -118,6 +120,7 @@
       }
     });
 
+    // 상품 수정
     window.editBean = function(id, name, region, process, price) {
       document.getElementById("bean-name").value = name;
       document.getElementById("bean-region").value = region;
@@ -126,12 +129,14 @@
       beanForm.dataset.editingId = id;
     };
 
+    // 상품 삭제
     window.deleteBean = function(id) {
       if (confirm("삭제하시겠습니까?")) {
         db.collection("beans").doc(id).delete().then(renderBeans);
       }
     };
 
+    // 관리자 권한 확인
     auth.onAuthStateChanged(user => {
       if (!user) location.href = "login.html";
       else {

@@ -3,56 +3,56 @@
 <head>
   <meta charset="UTF-8" />
   <title>로그인 - 한대리 로터스</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Firebase SDK -->
+  <!-- ✅ Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
-
   <script>
     const firebaseConfig = {
-      apiKey: "AIzaSyB55BGkNckk2ClCdkgqp0f9iZm8-o5163w",
+      apiKey: "AIzaSyB585bChkNk2ClCdkgq09j7m8-eo5163w", // ✅ 확인 필요
       authDomain: "handaeri-auth-test.firebaseapp.com",
       projectId: "handaeri-auth-test",
       storageBucket: "handaeri-auth-test.appspot.com",
-      messagingSenderId: "972715732745",
-      appId: "1:972715732745:web:bbb9e07ac16cc6beb32dd8",
-      measurementId: "G-8FV8ZRL528"
+      messagingSenderId: "972715372745",
+      appId: "1:972715372745:web:bb80e07ae160c6beb32dd8",
+      measurementId: "G-8FV8RLZ52B"
     };
-
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
   </script>
 </head>
-<body>
-  <header class="header">
-    <div class="util-menu">
-      <ul id="menu-list">
-        <li class="auth-menu"><a href="signup.html">회원가입</a></li>
-        <li class="auth-menu"><a href="login.html">로그인</a></li>
-        <li><a href="#">주문조회</a></li>
-        <li><a href="cart.html">장바구니</a></li>
-        <li class="user-menu" style="display: none;"><a href="#">마이페이지</a></li>
-        <li id="logout-menu" style="display: none;"><button id="logout-btn">로그아웃</button></li>
-      </ul>
-    </div>
-    <h1><a href="index.html" class="logo">한대리 로터스</a></h1>
+<body class="bg-amber-50 text-gray-800">
+  <!-- ✅ Header -->
+  <header class="bg-zinc-800 text-white py-4 text-center">
+    <h1 class="text-2xl font-bold"><a href="index.html" class="hover:underline">한대리 로터스</a></h1>
   </header>
 
-  <main class="hero">
-    <h2>로그인</h2>
-    <p id="login-error" style="color: red; display: none;"></p>
-    <form id="login-form" style="max-width: 400px; margin: 0 auto; text-align: left;">
-      <label>이메일<br><input type="email" name="email" required></label><br><br>
-      <label>비밀번호<br><input type="password" name="password" minlength="6" required></label><br><br>
-      <button type="submit">로그인</button>
+  <!-- ✅ Main -->
+  <main class="max-w-md mx-auto py-10 px-4">
+    <h2 class="text-xl font-semibold text-center mb-6">로그인</h2>
+    <p id="login-error" class="text-red-500 text-sm text-center mb-4 hidden"></p>
+    <form id="login-form" class="bg-white p-6 rounded shadow space-y-4">
+      <div>
+        <label class="block text-sm font-medium">이메일</label>
+        <input type="email" name="email" required class="mt-1 w-full border rounded px-3 py-2">
+      </div>
+      <div>
+        <label class="block text-sm font-medium">비밀번호</label>
+        <input type="password" name="password" minlength="6" required class="mt-1 w-full border rounded px-3 py-2">
+      </div>
+      <button type="submit" class="w-full bg-zinc-800 text-white py-2 rounded hover:bg-zinc-700">로그인</button>
     </form>
   </main>
 
-  <footer class="footer">&copy; 2025 한대리 로터스</footer>
+  <!-- ✅ Footer -->
+  <footer class="bg-zinc-800 text-white text-center py-4">&copy; 2025 한대리 로터스</footer>
 
+  <!-- ✅ Script -->
   <script>
     auth.onAuthStateChanged(async (user) => {
       if (user) {
@@ -68,42 +68,25 @@
           console.error("사용자 이름 가져오기 실패:", e);
         }
 
-        document.querySelectorAll(".auth-menu").forEach(el => el.style.display = "none");
-        document.querySelector(".user-menu").style.display = "inline";
-        document.getElementById("logout-menu").style.display = "inline";
-
-        document.getElementById("logout-btn").addEventListener("click", () => {
-          auth.signOut().then(() => {
-            localStorage.clear();
-            window.location.href = "index.html";
-          });
-        });
+        localStorage.setItem("username", name);
+        localStorage.setItem("email", user.email);
+        window.location.href = "index.html";
       }
     });
 
     document.getElementById("login-form").addEventListener("submit", function (e) {
       e.preventDefault();
-
       const email = e.target.email.value;
       const password = e.target.password.value;
       const errorEl = document.getElementById("login-error");
 
       auth.signInWithEmailAndPassword(email, password)
-        .then(userCredential => {
-          const user = userCredential.user;
-          if (!user) throw new Error("사용자 정보가 없습니다.");
-
-          return db.collection("users").doc(user.uid).get();
-        })
-        .then(doc => {
-          const name = doc.exists && doc.data().name ? doc.data().name : email;
-          localStorage.setItem("username", name);
-          localStorage.setItem("email", email);
+        .then(() => {
           window.location.href = "index.html";
         })
         .catch(error => {
           errorEl.innerText = "로그인 실패: " + error.message;
-          errorEl.style.display = "block";
+          errorEl.classList.remove("hidden");
         });
     });
   </script>

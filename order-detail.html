@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>주문 상세 - 한대리 로터스</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
@@ -9,24 +9,32 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 </head>
 <body class="bg-amber-50 text-gray-800">
+  <!-- 🔷 헤더 -->
   <header class="bg-zinc-800 text-white py-4 text-center">
-    <h1 class="text-2xl font-bold"><a href="index.html" class="hover:underline">한대리 로터스</a></h1>
+    <h1 class="text-2xl font-bold">
+      <a href="index.html" class="hover:underline">한대리 로터스</a>
+    </h1>
   </header>
 
+  <!-- 🔷 메인 -->
   <main class="max-w-2xl mx-auto py-10 px-4">
     <h2 class="text-xl font-semibold mb-6">📄 주문 상세</h2>
     <div id="detail-container" class="bg-white rounded-lg shadow p-6 space-y-4">
       <p class="text-gray-500">로딩 중...</p>
     </div>
     <div class="text-center mt-6">
-      <button onclick="history.back()" class="bg-zinc-800 text-white px-4 py-2 rounded hover:bg-zinc-700">🔙 돌아가기</button>
+      <button onclick="history.back()" class="bg-zinc-800 text-white px-4 py-2 rounded hover:bg-zinc-700">
+        🔙 돌아가기
+      </button>
     </div>
   </main>
 
+  <!-- 🔷 푸터 -->
   <footer class="bg-zinc-800 text-white py-4 text-center">
     &copy; 2025 한대리 로터스
   </footer>
 
+  <!-- 🔷 Firebase 및 주문 정보 불러오기 -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyB585bChkNk2ClCdkgq09j7m8-eo5163w",
@@ -50,19 +58,16 @@
       }
 
       const items = order.items || [];
-      const itemsHTML = items.length > 0 ? items.map(i => `
-        <li class="flex justify-between text-sm">
-          <span>${i.name}</span>
-          <span>${i.qty}개</span>
-        </li>
-      `).join("") : "<li class='text-gray-500'>상품 정보 없음</li>";
+      const itemsHTML = items.length > 0
+        ? items.map(i => `<li class="flex justify-between text-sm"><span>${i.name}</span><span>${i.qty}개</span></li>`).join("")
+        : "<li class='text-gray-500'>상품 정보 없음</li>";
 
       container.innerHTML = `
         <p><strong>📄 주문번호:</strong> ${id}</p>
         <p><strong>👤 이름:</strong> ${order.customer?.name || "-"}</p>
         <p><strong>📞 연락처:</strong> ${order.customer?.phone || "-"}</p>
         <p><strong>🏠 주소:</strong> ${order.customer?.address || "-"}</p>
-        <p><strong>🚚 배송 상태:</strong> ${order.status || "-"}</p>
+        <p><strong>🚚 배송 상태:</strong> <span class="text-green-600">${order.status || "-"}</span></p>
         <div>
           <p class="font-semibold mt-4 mb-2">🛍 상품 목록:</p>
           <ul class="bg-gray-100 rounded p-3 space-y-1 list-none">${itemsHTML}</ul>

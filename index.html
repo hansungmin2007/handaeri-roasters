@@ -4,8 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>한대리 로터스</title>
-  <link rel="stylesheet" href="css/style.css">
-  <!-- ✅ Tailwind (선택적) -->
+  <link rel="stylesheet" href="css/style.css" />
+
+  <!-- ✅ Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- ✅ Firebase SDKs -->
@@ -29,29 +30,29 @@
 
 <body class="bg-amber-50 text-gray-800">
   <!-- ✅ 상단 헤더 -->
-  <header class="header">
-    <div class="util-menu">
-      <ul id="menu-list"></ul>
+  <header class="header bg-zinc-800 text-white p-4">
+    <div class="util-menu text-right mb-2">
+      <ul id="menu-list" class="flex gap-3 justify-end text-sm"></ul>
     </div>
-    <h1><a href="index.html" class="logo">한대리 로터스</a></h1>
-    <nav class="navbar">
-      <ul>
-        <li><a href="beans.html">원두 소개</a></li>
-        <li><a href="roaster.html">로스터 소개</a></li>
+    <h1 class="text-2xl font-bold text-center"><a href="index.html" class="logo">한대리 로터스</a></h1>
+    <nav class="navbar mt-4 text-center">
+      <ul class="flex justify-center gap-6 text-white text-sm">
+        <li><a href="beans.html" class="hover:underline">원두 소개</a></li>
+        <li><a href="roaster.html" class="hover:underline">로스터 소개</a></li>
       </ul>
     </nav>
   </header>
 
   <!-- 환영 메시지 -->
-  <p id="welcome" style="text-align: right; padding-right: 1rem;"></p>
+  <p id="welcome" class="text-right pr-4 mt-2 text-sm text-gray-700"></p>
 
-  <!-- 메인 -->
+  <!-- ✅ 메인 콘텐츠 -->
   <main class="hero text-center py-10 px-4">
     <h2 class="text-2xl font-semibold">한 잔의 커피는 기억을 깨우고,<br>한 장의 사진은 그 기억을 남깁니다.</h2>
     <p class="mt-4">로스터 한대리가 선별한 특별한 원두를 만나보세요.</p>
   </main>
 
-  <!-- 푸터 -->
+  <!-- ✅ 푸터 -->
   <footer class="footer text-center py-4 bg-zinc-800 text-white">
     &copy; 2025 한대리 로터스
   </footer>
@@ -81,16 +82,19 @@
           <li><a href="order-summary.html">주문조회</a></li>
           <li><a href="mypage.html">마이페이지</a></li>
           <li><a href="cart.html">장바구니</a></li>
-          <li><button id="logout-btn">로그아웃</button></li>
+          <li><button id="logout-btn" class="hover:underline">로그아웃</button></li>
         `;
 
-        document.getElementById("logout-btn").addEventListener("click", () => {
-          auth.signOut().then(() => {
-            localStorage.clear();
-            alert("로그아웃 되었습니다.");
-            window.location.href = "index.html";
+        const logoutBtn = document.getElementById("logout-btn");
+        if (logoutBtn) {
+          logoutBtn.addEventListener("click", () => {
+            auth.signOut().then(() => {
+              localStorage.clear();
+              alert("로그아웃 되었습니다.");
+              window.location.href = "index.html";
+            });
           });
-        });
+        }
 
       } else {
         menuEl.innerHTML = `

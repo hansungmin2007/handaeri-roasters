@@ -20,21 +20,21 @@
       appId: "1:972715732745:web:bbb9e07ac16cc6beb32dd8",
       measurementId: "G-8FV8ZRL528"
     };
-
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
   </script>
 </head>
+
 <body>
   <header class="header">
     <div class="util-menu">
       <ul id="menu-list">
         <li class="auth-menu"><a href="signup.html">회원가입</a></li>
         <li class="auth-menu"><a href="login.html">로그인</a></li>
-        <li><a href="#">주문조회</a></li>
+        <li><a href="order-summary.html">주문조회</a></li>
         <li><a href="cart.html">장바구니</a></li>
-        <li class="user-menu" style="display: none;"><a href="#">마이페이지</a></li>
+        <li class="user-menu" style="display: none;"><a href="mypage.html">마이페이지</a></li>
         <li id="logout-menu" style="display: none;"><button id="logout-btn">로그아웃</button></li>
       </ul>
     </div>
@@ -56,6 +56,7 @@
   <footer class="footer">&copy; 2025 한대리 로터스</footer>
 
   <script>
+    // 로그인 상태에 따라 메뉴 표시 전환
     auth.onAuthStateChanged(async (user) => {
       if (user) {
         const uid = user.uid;
@@ -83,6 +84,7 @@
       }
     });
 
+    // 회원가입 처리
     document.getElementById("signup-form").addEventListener("submit", function (e) {
       e.preventDefault();
 

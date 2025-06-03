@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>주문조회 - 한대리 로터스</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
@@ -9,17 +9,25 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 </head>
 <body class="bg-amber-50 text-gray-800">
+  <!-- 🔷 헤더 -->
   <header class="bg-zinc-800 text-white py-4 text-center">
-    <h1 class="text-2xl font-bold"><a href="index.html" class="hover:underline">한대리 로터스</a></h1>
+    <h1 class="text-2xl font-bold">
+      <a href="index.html" class="hover:underline">한대리 로터스</a>
+    </h1>
   </header>
 
+  <!-- 🔷 메인 -->
   <main class="max-w-3xl mx-auto py-10 px-4">
     <h2 class="text-xl font-semibold mb-6">📦 주문 조회</h2>
     <div id="order-list" class="space-y-4"></div>
   </main>
 
-  <footer class="bg-zinc-800 text-white py-4 text-center">&copy; 2025 한대리 로터스</footer>
+  <!-- 🔷 푸터 -->
+  <footer class="bg-zinc-800 text-white py-4 text-center">
+    &copy; 2025 한대리 로터스
+  </footer>
 
+  <!-- 🔷 Firebase 연동 및 주문 조회 -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyB585bChkNk2ClCdkgq09j7m8-eo5163w",
@@ -42,7 +50,10 @@
 
       db.ref("orders").on("value", snapshot => {
         const data = snapshot.val();
-        const orders = Object.entries(data || {}).filter(([id, order]) => order.customer.email === user.email);
+        const orders = Object.entries(data || {}).filter(
+          ([, order]) => order.customer?.email === user.email
+        );
+
         orderListEl.innerHTML = "";
 
         if (orders.length === 0) {
@@ -52,14 +63,27 @@
 
         orders.forEach(([id, order]) => {
           const card = document.createElement("div");
+          const itemsHTML = order.items.map(i => `
+            <li class="flex justify-between text-sm">
+              <span>${i.name}</span>
+              <span>${i.qty}개</span>
+            </li>
+          `).join("");
+
           card.className = "bg-white rounded shadow p-4 space-y-2";
           card.innerHTML = `
-            <p><strong>주문번호:</strong> <a href="order-detail.html?id=${id}" class="text-blue-600 hover:underline">${id}</a></p>
-            <p><strong>배송 상태:</strong> <span class="${order.status === '배송 완료' ? 'text-green-600' : 'text-yellow-600'}">${order.status}</span></p>
-            <ul class="space-y-1">
-              ${order.items.map(i => `<li class="flex justify-between text-sm"><span>${i.name}</span><span>${i.qty}개</span></li>`).join("")}
-            </ul>
-            ${order.status !== '배송 완료' ? `<p class='text-sm text-gray-500'>※ 배송 준비 중입니다. 배송 완료 시 알림이 제공됩니다.</p>` : ''}
+            <p><strong>주문번호:</strong> 
+              <a href="order-detail.html?id=${id}" class="text-blue-600 hover:underline">${id}</a>
+            </p>
+            <p><strong>배송 상태:</strong> 
+              <span class="${order.status === '배송 완료' ? 'text-green-600' : 'text-yellow-600'}">
+                ${order.status || '대기 중'}
+              </span>
+            </p>
+            <ul class="space-y-1">${itemsHTML}</ul>
+            ${order.status !== '배송 완료' 
+              ? `<p class='text-sm text-gray-500'>※ 배송 준비 중입니다. 배송 완료 시 알림이 제공됩니다.</p>` 
+              : ''}
           `;
           orderListEl.appendChild(card);
         });

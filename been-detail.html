@@ -2,27 +2,36 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>원두 상세 - 한대리 로터스</title>
   <link rel="stylesheet" href="css/style.css">
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 </head>
-<body>
-  <header class="header">
-    <h1><a href="index.html" class="logo">한대리 로터스</a></h1>
+<body class="bg-amber-50 text-gray-800">
+  <!-- ✅ 헤더 -->
+  <header class="header bg-zinc-800 text-white py-4 text-center">
+    <h1 class="text-2xl font-bold"><a href="index.html" class="logo hover:underline">한대리 로터스</a></h1>
   </header>
 
-  <main class="hero">
-    <h2>☕ 원두 상세 정보</h2>
-    <div id="bean-detail" class="bean-card"></div>
+  <!-- ✅ 본문 -->
+  <main class="max-w-xl mx-auto py-10 px-4">
+    <h2 class="text-xl font-semibold mb-6 text-center">☕ 원두 상세 정보</h2>
+    <div id="bean-detail" class="bg-white shadow rounded p-6 space-y-2 text-sm">
+      <p class="text-center text-gray-500">로딩 중...</p>
+    </div>
+    <div class="text-center mt-6">
+      <button onclick="history.back()" class="bg-zinc-800 text-white px-4 py-2 rounded hover:bg-zinc-700">🔙 목록으로</button>
+    </div>
   </main>
 
-  <footer class="footer">
+  <!-- ✅ 푸터 -->
+  <footer class="footer bg-zinc-800 text-white py-4 text-center">
     &copy; 2025 한대리 로터스
   </footer>
 
+  <!-- ✅ Firebase 로직 -->
   <script>
-    // ✅ Firebase 초기화
     const firebaseConfig = {
       apiKey: "AIzaSyB585bChkNk2ClCdkgq09j7m8-eo5163w",
       authDomain: "handaeri-auth-test.firebaseapp.com",
@@ -31,30 +40,27 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // ✅ URL에서 id 가져오기
+    const detailEl = document.getElementById("bean-detail");
     const params = new URLSearchParams(window.location.search);
     const id = params.get("id");
 
-    const detailEl = document.getElementById("bean-detail");
-
-    // ✅ Firestore에서 원두 정보 불러오기
     db.collection("beans").doc(id).get().then(doc => {
       if (!doc.exists) {
-        detailEl.innerHTML = '<p class="text-red-500">존재하지 않는 원두입니다.</p>';
+        detailEl.innerHTML = '<p class="text-red-500 text-center">존재하지 않는 원두입니다.</p>';
         return;
       }
 
       const bean = doc.data();
       detailEl.innerHTML = `
-        <h3 class="text-lg font-bold">${bean.name}</h3>
+        <h3 class="text-lg font-bold">${bean.name || '이름 없음'}</h3>
+        ${bean.imageUrl ? `<img src="${bean.imageUrl}" alt="${bean.name}" class="w-full h-48 object-cover rounded">` : ""}
         <p><strong>지역:</strong> ${bean.region || '-'}</p>
         <p><strong>가공방식:</strong> ${bean.process || '-'}</p>
         <p><strong>노트:</strong> ${bean.notes || '-'}</p>
         <p><strong>가격:</strong> ${(bean.price || 0).toLocaleString()} 원</p>
-        <button onclick="history.back()" class="mt-4 px-4 py-2 bg-zinc-800 text-white rounded hover:bg-zinc-700">목록으로 돌아가기</button>
       `;
     }).catch(err => {
-      detailEl.innerHTML = `<p class="text-red-500">오류가 발생했습니다: ${err.message}</p>`;
+      detailEl.innerHTML = `<p class="text-red-500 text-center">오류가 발생했습니다: ${err.message}</p>`;
     });
   </script>
 </body>

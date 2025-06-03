@@ -2,12 +2,14 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>원두 소개 - 한대리 로터스</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 </head>
 <body class="bg-amber-50 text-gray-800">
+  <!-- ✅ 헤더 -->
   <header class="bg-zinc-800 text-white py-4 text-center">
     <h1 class="text-2xl font-bold"><a href="index.html" class="hover:underline">한대리 로터스</a></h1>
     <nav class="mt-2">
@@ -18,13 +20,20 @@
     </nav>
   </header>
 
+  <!-- ✅ 메인 콘텐츠 -->
   <main class="max-w-6xl mx-auto py-10 px-4">
     <h2 class="text-xl font-semibold mb-6 text-center">☕ 군가의 우주가 드디어 발견한 원두</h2>
-    <div id="bean-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    <div id="bean-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <p class="text-center col-span-full text-gray-500">원두 목록 불러오는 중...</p>
+    </div>
   </main>
 
-  <footer class="bg-zinc-800 text-white py-4 text-center">&copy; 2025 한대리 로터스</footer>
+  <!-- ✅ 푸터 -->
+  <footer class="bg-zinc-800 text-white py-4 text-center">
+    &copy; 2025 한대리 로터스
+  </footer>
 
+  <!-- ✅ Firebase + Firestore 로직 -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyB585bChkNk2ClCdkgq09j7m8-eo5163w",
@@ -36,24 +45,33 @@
 
     const beanListEl = document.getElementById("bean-list");
 
-    db.collection("beans").get().then(snapshot => {
-      snapshot.forEach(doc => {
-        const bean = doc.data();
-        const div = document.createElement("div");
-        div.className = "bg-white rounded shadow p-4 space-y-2";
-        div.innerHTML = `
-          ${bean.imageUrl ? `<img src="${bean.imageUrl}" class="w-full h-48 object-cover rounded">` : ""}
-          <h3 class="text-lg font-bold">${bean.name}</h3>
-          <p><strong>지역:</strong> ${bean.region}</p>
-          <p><strong>가공방식:</strong> ${bean.process}</p>
-          <p><strong>가격:</strong> ${bean.price?.toLocaleString() || 0} 원</p>
-          <a href="bean-detail.html?id=${doc.id}" class="inline-block bg-zinc-800 text-white px-3 py-1 rounded hover:bg-zinc-700">상세 보기</a>
-        `;
-        beanListEl.appendChild(div);
+    db.collection("beans").get()
+      .then(snapshot => {
+        beanListEl.innerHTML = ""; // 초기 로딩 텍스트 제거
+        if (snapshot.empty) {
+          beanListEl.innerHTML = `<p class="text-center col-span-full text-gray-500">등록된 원두가 없습니다.</p>`;
+          return;
+        }
+
+        snapshot.forEach(doc => {
+          const bean = doc.data();
+          const div = document.createElement("div");
+          div.className = "bg-white rounded shadow p-4 space-y-2";
+
+          div.innerHTML = `
+            ${bean.imageUrl ? `<img src="${bean.imageUrl}" class="w-full h-48 object-cover rounded">` : ""}
+            <h3 class="text-lg font-bold">${bean.name || "이름 없음"}</h3>
+            <p><strong>지역:</strong> ${bean.region || "-"}</p>
+            <p><strong>가공방식:</strong> ${bean.process || "-"}</p>
+            <p><strong>가격:</strong> ${(bean.price || 0).toLocaleString()} 원</p>
+            <a href="bean-detail.html?id=${doc.id}" class="inline-block bg-zinc-800 text-white px-3 py-1 rounded hover:bg-zinc-700">상세 보기</a>
+          `;
+          beanListEl.appendChild(div);
+        });
+      })
+      .catch(err => {
+        beanListEl.innerHTML = `<p class='text-red-500 col-span-full'>원두 목록을 불러오는 데 실패했습니다: ${err.message}</p>`;
       });
-    }).catch(err => {
-      beanListEl.innerHTML = `<p class='text-red-500'>원두 목록을 불러오는 데 실패했습니다: ${err.message}</p>`;
-    });
   </script>
 </body>
 </html>
