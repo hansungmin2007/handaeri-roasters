@@ -22,6 +22,7 @@
   </footer>
 
   <script>
+    // ✅ Firebase 초기화
     const firebaseConfig = {
       apiKey: "AIzaSyB585bChkNk2ClCdkgq09j7m8-eo5163w",
       authDomain: "handaeri-auth-test.firebaseapp.com",
@@ -30,26 +31,30 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    const params = new URLSearchParams(location.search);
+    // ✅ URL에서 id 가져오기
+    const params = new URLSearchParams(window.location.search);
     const id = params.get("id");
 
     const detailEl = document.getElementById("bean-detail");
 
+    // ✅ Firestore에서 원두 정보 불러오기
     db.collection("beans").doc(id).get().then(doc => {
       if (!doc.exists) {
-        detailEl.innerHTML = '<p>존재하지 않는 원두입니다.</p>';
+        detailEl.innerHTML = '<p class="text-red-500">존재하지 않는 원두입니다.</p>';
         return;
       }
 
       const bean = doc.data();
       detailEl.innerHTML = `
-        <h3>${bean.name}</h3>
-        <p><strong>지역:</strong> ${bean.region}</p>
-        <p><strong>가공방식:</strong> ${bean.process}</p>
-        <p><strong>노트:</strong> ${bean.notes}</p>
-        <p><strong>가격:</strong> ${bean.price.toLocaleString()} 원</p>
-        <button onclick="history.back()">목록으로 돌아가기</button>
+        <h3 class="text-lg font-bold">${bean.name}</h3>
+        <p><strong>지역:</strong> ${bean.region || '-'}</p>
+        <p><strong>가공방식:</strong> ${bean.process || '-'}</p>
+        <p><strong>노트:</strong> ${bean.notes || '-'}</p>
+        <p><strong>가격:</strong> ${(bean.price || 0).toLocaleString()} 원</p>
+        <button onclick="history.back()" class="mt-4 px-4 py-2 bg-zinc-800 text-white rounded hover:bg-zinc-700">목록으로 돌아가기</button>
       `;
+    }).catch(err => {
+      detailEl.innerHTML = `<p class="text-red-500">오류가 발생했습니다: ${err.message}</p>`;
     });
   </script>
 </body>
