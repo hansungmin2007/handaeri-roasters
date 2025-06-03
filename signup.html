@@ -1,32 +1,30 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>회원가입 - 한대리 로터스</title>
-  <link rel="stylesheet" href="css/style.css">
-  <!-- Firebase SDK -->
-  <!-- Firebase compat SDK - v9에서 v8 문법 지원 -->
-<!-- Firebase compat SDK: v9이지만 v8 문법 사용 가능 -->
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+  <link rel="stylesheet" href="css/style.css" />
 
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyB55BGkNckk2ClCdkgqp0f9iZm8-o5163w",
-    authDomain: "handaeri-auth-test.firebaseapp.com",
-    projectId: "handaeri-auth-test",
-    storageBucket: "handaeri-auth-test.firebasestorage.app",
-    messagingSenderId: "972715732745",
-    appId: "1:972715732745:web:bbb9e07ac16cc6beb32dd8",
-    measurementId: "G-8FV8ZRL528"
-  };
+  <!-- ✅ Firebase compat SDK (v9에서 v8 방식 사용 가능) -->
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
 
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
-</script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyB55BGkNckk2ClCdkgqp0f9iZm8-o5163w",
+      authDomain: "handaeri-auth-test.firebaseapp.com",
+      projectId: "handaeri-auth-test",
+      storageBucket: "handaeri-auth-test.firebasestorage.app",
+      messagingSenderId: "972715732745",
+      appId: "1:972715732745:web:bbb9e07ac16cc6beb32dd8",
+      measurementId: "G-8FV8ZRL528"
+    };
 
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+  </script>
 </head>
 <body>
   <header class="header">
@@ -64,7 +62,6 @@
       document.getElementById("welcome").innerText = `${username}님, 환영합니다!`;
       document.getElementById("logout-menu").style.display = "inline";
       document.querySelectorAll(".auth-menu").forEach(el => el.style.display = "none");
-
       document.getElementById("logout-btn").addEventListener("click", () => {
         localStorage.removeItem("username");
         localStorage.removeItem("email");
@@ -75,6 +72,7 @@
 
     document.getElementById("signup-form").addEventListener("submit", function (e) {
       e.preventDefault();
+
       const name = document.getElementById("name").value;
       const email = document.querySelector('input[name="email"]').value;
       const pw = document.getElementById("password").value;
@@ -88,10 +86,11 @@
       }
 
       auth.createUserWithEmailAndPassword(email, pw)
-        .then((userCredential) => {
+        .then(userCredential => {
           const uid = userCredential.user.uid;
           localStorage.setItem("username", name);
           localStorage.setItem("email", email);
+
           return db.collection("users").doc(uid).set({
             name: name,
             email: email,
@@ -103,7 +102,7 @@
           alert("회원가입 완료!");
           window.location.href = "login.html";
         })
-        .catch((error) => {
+        .catch(error => {
           errorEl.innerText = "오류: " + error.message;
           errorEl.style.display = "block";
         });

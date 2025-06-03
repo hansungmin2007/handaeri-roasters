@@ -1,31 +1,30 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>로그인 - 한대리 로터스</title>
-  <link rel="stylesheet" href="css/style.css">
-  <!-- Firebase SDK -->
-  <!-- Firebase compat SDK - v9에서 v8 문법 지원 -->
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+  <link rel="stylesheet" href="css/style.css" />
 
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyB585bChkNk2ClCdkgq09j7m8-eo5163w",
-    authDomain: "handaeri-auth-test.firebaseapp.com",
-    projectId: "handaeri-auth-test",
-    storageBucket: "handaeri-auth-test.appspot.com",
-    messagingSenderId: "972715372745",
-    appId: "1:972715372745:web:bb80e07ae160c6beb32dd8",
-    measurementId: "G-8FV8RLZ52B"
-  };
+  <!-- ✅ Firebase compat SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
 
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
-</script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyB55BGkNckk2ClCdkgqp0f9iZm8-o5163w",
+      authDomain: "handaeri-auth-test.firebaseapp.com",
+      projectId: "handaeri-auth-test",
+      storageBucket: "handaeri-auth-test.firebasestorage.app",
+      messagingSenderId: "972715732745",
+      appId: "1:972715732745:web:bbb9e07ac16cc6beb32dd8",
+      measurementId: "G-8FV8ZRL528"
+    };
 
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+  </script>
 </head>
 <body>
   <header class="header">
@@ -61,7 +60,6 @@
       document.getElementById("welcome").innerText = `${username}님, 환영합니다!`;
       document.getElementById("logout-menu").style.display = "inline";
       document.querySelectorAll(".auth-menu").forEach(el => el.style.display = "none");
-
       document.getElementById("logout-btn").addEventListener("click", () => {
         localStorage.removeItem("username");
         localStorage.removeItem("email");
@@ -72,23 +70,24 @@
 
     document.getElementById("login-form").addEventListener("submit", function (e) {
       e.preventDefault();
+
       const email = e.target.email.value;
       const password = e.target.password.value;
       const errorEl = document.getElementById("login-error");
 
       auth.signInWithEmailAndPassword(email, password)
-        .then((userCredential) => {
+        .then(userCredential => {
           const uid = userCredential.user.uid;
           return db.collection("users").doc(uid).get();
         })
-        .then((doc) => {
+        .then(doc => {
           const name = doc.exists && doc.data().name ? doc.data().name : email;
           localStorage.setItem("username", name);
           localStorage.setItem("email", email);
           alert("로그인 성공!");
           window.location.href = "index.html";
         })
-        .catch((error) => {
+        .catch(error => {
           errorEl.innerText = "로그인 실패: " + error.message;
           errorEl.style.display = "block";
         });
