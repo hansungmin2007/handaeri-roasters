@@ -2,190 +2,217 @@
    기본 설정
 ========================== */
 body {
-    font-family: 'Noto Sans KR', sans-serif;
-    margin: 0;
-    padding: 0;
-    background: #fdfaf6;
-    color: #333;
-  }
-  
-  /* ==========================
-     헤더 / 푸터
-  ========================== */
-  .header, .footer {
-    background: #2e2b28;
-    color: white;
-    padding: 1rem;
-    text-align: center;
-  }
-  
-  .footer {
-    margin-top: 2rem;
-  }
-  
-  /* ==========================
-     로고 링크
-  ========================== */
-  .logo {
-    color: white;
-    text-decoration: none;
-  }
-  
-  /* ==========================
-     상단 유틸 메뉴 (회원가입, 로그인 등)
-  ========================== */
-  .util-menu {
-    display: flex;
-    justify-content: flex-end;
-    padding-right: 1rem;
-    font-size: 0.9rem;
-    margin-bottom: 0.5rem;
-  }
-  
-  .util-menu ul {
-    list-style: none;
-    display: flex;
-    gap: 0.5rem;
-    margin: 0;
-    padding: 0;
-  }
-  
-  .util-menu li::after {
-    content: "|";
-    margin-left: 0.5rem;
-    color: #888;
-  }
-  
-  .util-menu li:last-child::after {
-    content: "";
-  }
-  
-  .util-menu a {
-    color: white;
-    text-decoration: none;
-    opacity: 0.8;
-  }
-  
-  .util-menu a:hover {
-    opacity: 1;
-  }
-  
-  /* ==========================
-     내비게이션 바
-  ========================== */
-  .navbar ul {
-    list-style: none;
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
-    padding: 0;
-    margin: 0;
-  }
-  
-  .navbar a {
-    color: white;
-    text-decoration: none;
-    font-weight: bold;
-  }
-  
-  /* ==========================
-     히어로 영역
-  ========================== */
+  font-family: 'Noto Sans KR', sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #fdfaf6;
+  color: #333;
+}
+
+/* ==========================
+   헤더 / 푸터
+========================== */
+.header, .footer {
+  background: #2e2b28;
+  color: white;
+  padding: 1rem;
+  text-align: center;
+}
+
+.footer {
+  margin-top: 2rem;
+}
+
+/* ==========================
+   로고 링크
+========================== */
+.logo {
+  color: white;
+  text-decoration: none;
+}
+
+/* ==========================
+   상단 유틸 메뉴
+========================== */
+.util-menu {
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 1rem;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.util-menu ul {
+  list-style: none;
+  display: flex;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+}
+
+.util-menu li::after {
+  content: "|";
+  margin-left: 0.5rem;
+  color: #888;
+}
+
+.util-menu li:last-child::after {
+  content: "";
+}
+
+.util-menu a {
+  color: white;
+  text-decoration: none;
+  opacity: 0.8;
+}
+
+.util-menu a:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+/* ==========================
+   내비게이션 바
+========================== */
+.navbar ul {
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  padding: 0;
+  margin: 0;
+}
+
+.navbar a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.navbar a:hover {
+  text-decoration: underline;
+}
+
+/* ==========================
+   히어로 영역
+========================== */
+.hero {
+  text-align: center;
+  padding: 4rem 1rem;
+  background: #e9e2d0;
+}
+
+/* ==========================
+   폼 요소 (회원가입/로그인)
+========================== */
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  width: 100%;
+  padding: 0.5rem;
+  margin-top: 0.3rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box;
+  font-size: 1rem;
+}
+
+/* ==========================
+   버튼 공통 스타일
+========================== */
+button,
+button[type="submit"],
+.btn {
+  background-color: #2e2b28;
+  color: white;
+  padding: 0.5rem 1.2rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+button:hover,
+.btn:hover {
+  background-color: #44413d;
+}
+
+/* ==========================
+   반응형 (모바일 대응)
+========================== */
+@media screen and (max-width: 480px) {
   .hero {
-    text-align: center;
-    padding: 4rem 1rem;
-    background: #e9e2d0;
-  }
-  
-  /* ==========================
-     폼 요소 (회원가입/로그인)
-  ========================== */
-  input[type="text"],
-  input[type="email"],
-  input[type="password"] {
-    width: 100%;
-    padding: 0.5rem;
-    margin-top: 0.3rem;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    box-sizing: border-box;
-    font-size: 1rem;
-  }
-  
-  button[type="submit"] {
-    background-color: #2e2b28;
-    color: white;
-    padding: 0.5rem 1.2rem;
-    border: none;
-    border-radius: 6px;
-    font-size: 1rem;
-    cursor: pointer;
-  }
-  
-  button[type="submit"]:hover {
-    background-color: #44413d;
-  }
-  
-  /* ==========================
-     반응형 (모바일 대응)
-  ========================== */
-  @media screen and (max-width: 480px) {
-    .hero {
-      padding: 2rem 1rem;
-    }
-  
-    input[type="text"],
-    input[type="email"],
-    input[type="password"],
-    button[type="submit"] {
-      font-size: 1rem;
-    }
-  
-    .navbar ul {
-      flex-direction: column;
-      align-items: center;
-      gap: 1rem;
-    }
-  
-    .util-menu {
-      justify-content: center;
-      padding-right: 0;
-    }
+    padding: 2rem 1rem;
   }
 
-  .bean-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
-    padding: 2rem;
-    max-width: 1200px;
-    margin: 0 auto;
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  button {
+    font-size: 1rem;
   }
-  
-  .bean-card {
-    background: white;
-    border-radius: 12px;
-    padding: 1rem;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    text-align: left;
+
+  .navbar ul {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
   }
-  
-  /* 관리자 페이지 테이블 스타일 */
+
+  .util-menu {
+    justify-content: center;
+    padding-right: 0;
+  }
+}
+
+/* ==========================
+   원두 목록 (Bean List)
+========================== */
+.bean-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.bean-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  text-align: left;
+}
+
+/* ==========================
+   관리자 페이지 테이블
+========================== */
 table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 1rem;
-  }
-  th, td {
-    border: 1px solid #ccc;
-    padding: 0.6rem;
-    text-align: center;
-  }
-  th {
-    background-color: #f0f0f0;
-  }
-  .action-btn {
-    padding: 0.3rem 0.7rem;
-    margin: 0.2rem;
-    cursor: pointer;
-  }
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+th, td {
+  border: 1px solid #ccc;
+  padding: 0.6rem;
+  text-align: center;
+}
+
+th {
+  background-color: #f0f0f0;
+}
+
+.action-btn {
+  padding: 0.3rem 0.7rem;
+  margin: 0.2rem;
+  cursor: pointer;
+  background-color: #2e2b28;
+  color: white;
+  border: none;
+  border-radius: 4px;
+}
+
+.action-btn:hover {
+  background-color: #44413d;
+}
