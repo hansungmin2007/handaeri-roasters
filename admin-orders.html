@@ -10,54 +10,17 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
   <style>
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 1rem;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 0.6rem;
-      text-align: center;
-    }
-    th {
-      background-color: #f0f0f0;
-    }
-    .action-btn {
-      padding: 0.3rem 0.7rem;
-      margin: 0.2rem;
-      cursor: pointer;
-    }
-    #detail-modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: #00000088;
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-    }
-    #detail-modal .modal-content {
-      background: #fff;
-      padding: 2rem;
-      border-radius: 10px;
-      width: 90%;
-      max-width: 500px;
-      position: relative;
-    }
-    #detail-modal .modal-content button {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-    }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    th, td { border: 1px solid #ccc; padding: 0.6rem; text-align: center; }
+    th { background-color: #f0f0f0; }
+    .action-btn { padding: 0.3rem 0.7rem; margin: 0.2rem; cursor: pointer; }
+    #detail-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #00000088; z-index: 1000; justify-content: center; align-items: center; }
+    #detail-modal .modal-content { background: #fff; padding: 2rem; border-radius: 10px; width: 90%; max-width: 500px; position: relative; }
+    #detail-modal .modal-content button { position: absolute; top: 10px; right: 10px; }
   </style>
 </head>
 <body>
 
-<!-- 🔐 Firebase + 관리자 인증 -->
 <script>
   const firebaseConfig = {
     apiKey: "AIzaSyB585bChkNk2ClCdkgq09j7m8-eo5163w",
@@ -126,7 +89,6 @@
   </div>
 </main>
 
-<!-- 상세 모달 -->
 <div id="detail-modal">
   <div class="modal-content">
     <button onclick="closeModal()">✖</button>
@@ -139,7 +101,6 @@
   &copy; 2025 한대리 로터스
 </footer>
 
-<!-- 주문 목록 렌더링 및 기능 -->
 <script>
   const orders = JSON.parse(localStorage.getItem("allOrders") || "[]");
 
@@ -209,7 +170,7 @@
       o.items.map(i => `${i.name}(${i.qty})`).join("; "),
       o.status
     ]);
-    let csvContent = [header, ...rows].map(e => e.join(",")).join("\\n");
+    let csvContent = [header, ...rows].map(e => e.join(",")).join("\n");
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);

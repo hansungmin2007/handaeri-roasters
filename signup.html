@@ -1,10 +1,10 @@
-<!-- ✅ signup.html - 회원가입 페이지 -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
   <title>회원가입 - 한대리 로터스</title>
   <link rel="stylesheet" href="css/style.css">
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
@@ -56,11 +56,13 @@
   <script>
     const username = localStorage.getItem("username");
     if (username) {
-      document.getElementById("welcome").innerHTML = `${username}님, 환영합니다!`;
+      document.getElementById("welcome").innerText = `${username}님, 환영합니다!`;
       document.getElementById("logout-menu").style.display = "inline";
       document.querySelectorAll(".auth-menu").forEach(el => el.style.display = "none");
+
       document.getElementById("logout-btn").addEventListener("click", () => {
         localStorage.removeItem("username");
+        localStorage.removeItem("email");
         alert("로그아웃 되었습니다.");
         window.location.href = "index.html";
       });
@@ -83,10 +85,12 @@
       auth.createUserWithEmailAndPassword(email, pw)
         .then((userCredential) => {
           const uid = userCredential.user.uid;
-          localStorage.setItem("username", email);
+          localStorage.setItem("username", name);
+          localStorage.setItem("email", email);
           return db.collection("users").doc(uid).set({
             name: name,
             email: email,
+            role: "user",
             createdAt: new Date()
           });
         })

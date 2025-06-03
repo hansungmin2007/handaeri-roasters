@@ -1,48 +1,105 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>원두 소개 - 한대리 로터스</title>
-  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+  <!-- ✅ 헤더 -->
   <header class="header">
+    <div class="util-menu">
+      <ul>
+        <li class="auth-menu"><a href="signup.html">회원가입</a></li>
+        <li class="auth-menu"><a href="login.html">로그인</a></li>
+        <li><a href="#">주문조회</a></li>
+        <li><a href="cart.html">장바구니</a></li>
+        <li id="logout-menu" style="display: none;"><button id="logout-btn">로그아웃</button></li>
+      </ul>
+    </div>
     <h1><a href="index.html" class="logo">한대리 로터스</a></h1>
+    <nav class="navbar">
+      <ul>
+        <li><a href="beans.html">원두 소개</a></li>
+        <li><a href="roaster.html">로스터 소개</a></li>
+      </ul>
+    </nav>
   </header>
 
+  <p id="welcome" style="text-align: right; padding-right: 1rem;"></p>
+
+  <!-- ✅ 본문 -->
   <main class="hero">
-    <h2>원두 리스트</h2>
-    <div id="bean-list" class="bean-list"></div>
+    <h2>원두 소개</h2>
+    <section style="max-width: 800px; margin: auto; text-align: left;">
+      <h3>🌱 에티오피아 코케 허니</h3>
+      <p>생산지: 에티오피아 예가체프<br>
+         가공방식: 허니 프로세스<br>
+         노트: 복숭아, 자몽, 재스민</p>
+
+      <h3>☕ 케냐 가톨초 AA</h3>
+      <p>생산지: 케냐 니에리<br>
+         가공방식: 워시드<br>
+         노트: 블랙커런트, 자두, 초콜릿</p>
+
+      <h3>🍫 콜롬비아 수프리모</h3>
+      <p>생산지: 콜롬비아 안티오키아<br>
+         가공방식: 워시드<br>
+         노트: 캐러멜, 구운 아몬드, 오렌지</p>
+    </section>
   </main>
 
+  <!-- ✅ 푸터 -->
   <footer class="footer">
     &copy; 2025 한대리 로터스
   </footer>
 
+  <!-- ✅ 로그인 상태 확인 -->
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
   <script>
-    fetch("beans.json") // ← beans.json 위치에 따라 경로 조정
-      .then(response => response.json())
-      .then(data => {
-        const listEl = document.getElementById("bean-list");
+    const firebaseConfig = {
+      apiKey: "AIzaSyB585bChkNk2ClCdkgq09j7m8-eo5163w",
+      authDomain: "handaeri-auth-test.firebaseapp.com",
+      projectId: "handaeri-auth-test",
+      storageBucket: "handaeri-auth-test.appspot.com",
+      messagingSenderId: "972715372745",
+      appId: "1:972715372745:web:bb80e07ae160c6beb32dd8",
+      measurementId: "G-8FV8RLZ52B"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
-        data.forEach(bean => {
-          const card = document.createElement("div");
-          card.className = "bean-card";
-          card.innerHTML = `
-            <img src="${bean.image}" alt="${bean.name}" style="width:100%; border-radius:12px;">
-            <h3>${bean.name}</h3>
-            <p><strong>원산지:</strong> ${bean.origin}</p>
-            <p><strong>풍미:</strong> ${bean.flavor}</p>
-            <p><strong>로스팅:</strong> ${bean.roast}</p>
-            <p><strong>가격:</strong> ${bean.price.toLocaleString()}원</p>
-          `;
-          listEl.appendChild(card);
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        const uid = user.uid;
+        let name = user.email;
+
+        try {
+          const doc = await db.collection("users").doc(uid).get();
+          if (doc.exists && doc.data().name) {
+            name = doc.data().name;
+          }
+        } catch (e) {
+          console.error("사용자 이름 가져오기 실패:", e);
+        }
+
+        document.getElementById("welcome").innerText = `${name}님, 환영합니다!`;
+        document.getElementById("logout-menu").style.display = "inline";
+        document.querySelectorAll(".auth-menu").forEach(el => el.style.display = "none");
+
+        document.getElementById("logout-btn").addEventListener("click", () => {
+          auth.signOut().then(() => {
+            localStorage.clear();
+            alert("로그아웃 되었습니다.");
+            window.location.href = "index.html";
+          });
         });
-      })
-      .catch(error => {
-        document.getElementById("bean-list").innerText = "원두 정보를 불러올 수 없습니다.";
-        console.error("불러오기 실패:", error);
-      });
+      }
+    });
   </script>
+
 </body>
 </html>

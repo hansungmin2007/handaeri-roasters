@@ -4,33 +4,40 @@
   <meta charset="UTF-8">
   <title>한대리 로터스</title>
   <link rel="stylesheet" href="css/style.css">
+
+  <!-- ✅ Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyB585bChkNk2ClCdkgq09j7m8-eo5163w",
+      authDomain: "handaeri-auth-test.firebaseapp.com",
+      projectId: "handaeri-auth-test",
+      storageBucket: "handaeri-auth-test.appspot.com",
+      messagingSenderId: "972715372745",
+      appId: "1:972715372745:web:bb80e07ae160c6beb32dd8",
+      measurementId: "G-8FV8RLZ52B"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+  </script>
 </head>
 <body>
 
   <!-- ✅ 상단 헤더 -->
   <header class="header">
-    <!-- 유틸 메뉴 -->
     <div class="util-menu">
       <ul>
-        <!-- 로그인 전 보여줄 메뉴 (auth-menu 클래스 추가) -->
         <li class="auth-menu"><a href="signup.html">회원가입</a></li>
         <li class="auth-menu"><a href="login.html">로그인</a></li>
-
-        <!-- 공통 메뉴 -->
         <li><a href="#">주문조회</a></li>
         <li><a href="cart.html">장바구니</a></li>
-
-        <!-- 로그인 시만 보일 로그아웃 -->
-        <li id="logout-menu" style="display: none;">
-          <button id="logout-btn">로그아웃</button>
-        </li>
+        <li id="logout-menu" style="display: none;"><button id="logout-btn">로그아웃</button></li>
       </ul>
     </div>
-
-    <!-- 로고 -->
     <h1><a href="index.html" class="logo">한대리 로터스</a></h1>
-
-    <!-- 메인 네비게이션 -->
     <nav class="navbar">
       <ul>
         <li><a href="beans.html">원두 소개</a></li>
@@ -39,48 +46,53 @@
     </nav>
   </header>
 
-  <!-- 로그인 환영 메시지 -->
+  <!-- 환영 메시지 -->
   <p id="welcome" style="text-align: right; padding-right: 1rem;"></p>
 
-  <!-- 메인 콘텐츠 -->
+  <!-- 메인 -->
   <main class="hero">
     <h2>한 잔의 커피로 연결되는 마음</h2>
     <p>로스터 한대리가 선별한 특별한 원두를 만나보세요.</p>
   </main>
 
   <!-- 푸터 -->
-  <footer class="footer">
-    &copy; 2025 한대리 로터스
-  </footer>
+  <footer class="footer">&copy; 2025 한대리 로터스</footer>
 
-  <!-- ✅ 로그인 상태 확인 및 UI 동적 제어 -->
+  <!-- ✅ 로그인 상태 확인 및 UI 처리 -->
   <script>
-    const username = localStorage.getItem("username");
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        const uid = user.uid;
+        let name = user.email;
 
-    if (username) {
-      // 환영 메시지 출력
-      const welcomeEl = document.getElementById("welcome");
-      if (welcomeEl) {
-        welcomeEl.innerHTML = `${username}님, 환영합니다!`;
-      }
+        try {
+          const doc = await db.collection("users").doc(uid).get();
+          if (doc.exists && doc.data().name) {
+            name = doc.data().name;
+          }
+        } catch (e) {
+          console.error("사용자 이름 가져오기 실패:", e);
+        }
 
-      // 로그아웃 메뉴 보이기
-      const logoutMenu = document.getElementById("logout-menu");
-      if (logoutMenu) logoutMenu.style.display = "inline";
+        // UI 업데이트
+        document.getElementById("welcome").innerText = `${name}님, 환영합니다!`;
+        document.getElementById("logout-menu").style.display = "inline";
+        document.querySelectorAll(".auth-menu").forEach(el => el.style.display = "none");
 
-      // 로그인/회원가입 메뉴 숨기기
-      document.querySelectorAll(".auth-menu").forEach(el => el.style.display = "none");
-
-      // 로그아웃 동작
-      const logoutBtn = document.getElementById("logout-btn");
-      if (logoutBtn) {
-        logoutBtn.addEventListener("click", () => {
-          localStorage.removeItem("username");
-          alert("로그아웃 되었습니다.");
-          window.location.href = "index.html";
+        // 로그아웃 처리
+        document.getElementById("logout-btn").addEventListener("click", () => {
+          auth.signOut().then(() => {
+            localStorage.clear();
+            alert("로그아웃 되었습니다.");
+            window.location.href = "index.html";
+          });
         });
+
+      } else {
+        // 로그인 상태 아닐 때: 기본 UI 유지
+        console.log("로그인 안 됨");
       }
-    }
+    });
   </script>
 
 </body>

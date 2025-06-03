@@ -1,20 +1,14 @@
+<!-- ✅ cart.html - 장바구니 페이지 -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>장바구니 - 한대리 로터스</title>
-  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-  <script>
-    const username = localStorage.getItem("username");
-    if (!username) {
-      alert("로그인이 필요한 서비스입니다.");
-      window.location.href = "login.html";
-    }
-  </script>
-
+  <!-- ✅ 헤더 -->
   <header class="header">
     <div class="util-menu">
       <ul>
@@ -22,67 +16,35 @@
         <li class="auth-menu"><a href="login.html">로그인</a></li>
         <li><a href="#">주문조회</a></li>
         <li><a href="cart.html">장바구니</a></li>
-        <li id="logout-menu" style="display: none;">
-          <button id="logout-btn">로그아웃</button>
-        </li>
+        <li id="logout-menu" style="display: none;"><button id="logout-btn">로그아웃</button></li>
       </ul>
     </div>
     <h1><a href="index.html" class="logo">한대리 로터스</a></h1>
   </header>
 
+  <!-- ✅ 환영 메시지 -->
   <p id="welcome" style="text-align: right; padding-right: 1rem;"></p>
 
+  <!-- ✅ 메인 콘텐츠 -->
   <main class="hero">
-    <h2>장바구니</h2>
-
-    <div id="cart" style="max-width: 600px; margin: 2rem auto; text-align: left;">
-      <table style="width: 100%; border-collapse: collapse;">
-        <thead>
-          <tr style="border-bottom: 2px solid #aaa;">
-            <th align="left">상품명</th>
-            <th>수량</th>
-            <th>가격</th>
-            <th>삭제</th>
-          </tr>
-        </thead>
-        <tbody id="cart-body">
-          <tr data-price="13000">
-            <td>에티오피아 예가체프</td>
-            <td><input type="number" class="qty" value="1" min="1" style="width: 50px;"></td>
-            <td class="price">13,000원</td>
-            <td><button class="delete-btn">삭제</button></td>
-          </tr>
-          <tr data-price="25000">
-            <td>파나마 게이샤</td>
-            <td><input type="number" class="qty" value="2" min="1" style="width: 50px;"></td>
-            <td class="price">25,000원</td>
-            <td><button class="delete-btn">삭제</button></td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div id="total" style="text-align: right; margin-top: 1rem; font-weight: bold;">
-        총 합계: 63,000원
-      </div>
-
-      <div style="text-align: center; margin-top: 2rem;">
-        <button id="order-btn">주문하기</button>
-      </div>
-    </div>
+    <h2>🛒 내 장바구니</h2>
+    <div id="cart-items"></div>
+    <div id="cart-summary"></div>
   </main>
 
+  <!-- ✅ 푸터 -->
   <footer class="footer">
     &copy; 2025 한대리 로터스
   </footer>
 
-  <!-- 기능 스크립트 -->
+  <!-- ✅ 스크립트 -->
   <script>
-    const welcomeEl = document.getElementById("welcome");
-    if (username && welcomeEl) {
-      welcomeEl.textContent = `${username}님, 환영합니다!`;
+    // 로그인 상태 처리
+    const username = localStorage.getItem("username");
+    if (username) {
+      document.getElementById("welcome").innerText = `${username}님, 환영합니다!`;
       document.getElementById("logout-menu").style.display = "inline";
       document.querySelectorAll(".auth-menu").forEach(el => el.style.display = "none");
-
       document.getElementById("logout-btn").addEventListener("click", () => {
         localStorage.removeItem("username");
         alert("로그아웃 되었습니다.");
@@ -90,49 +52,53 @@
       });
     }
 
-    const cartBody = document.getElementById("cart-body");
-    const totalEl = document.getElementById("total");
+    // 장바구니 렌더링
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const cartItemsEl = document.getElementById("cart-items");
+    const cartSummaryEl = document.getElementById("cart-summary");
 
-    // 합계 계산 함수
-    function updateTotal() {
+    function renderCart() {
+      cartItemsEl.innerHTML = "";
+      cartSummaryEl.innerHTML = "";
+
+      if (cart.length === 0) {
+        cartItemsEl.innerHTML = "<p>장바구니가 비어있습니다.</p>";
+        return;
+      }
+
       let total = 0;
-      cartBody.querySelectorAll("tr").forEach(row => {
-        const price = Number(row.dataset.price);
-        const qty = Number(row.querySelector(".qty").value);
-        total += price * qty;
+      cart.forEach((item, index) => {
+        const itemTotal = item.price * item.qty;
+        total += itemTotal;
+
+        const div = document.createElement("div");
+        div.innerHTML = `
+          <p><strong>${item.name}</strong> - ${item.qty}개 (${item.price.toLocaleString()}원)</p>
+          <button onclick="removeItem(${index})">❌ 삭제</button>
+          <hr>
+        `;
+        cartItemsEl.appendChild(div);
       });
-      totalEl.textContent = `총 합계: ${total.toLocaleString()}원`;
+
+      cartSummaryEl.innerHTML = `
+        <p><strong>총합:</strong> ${total.toLocaleString()}원</p>
+        <button onclick="checkout()">주문하기</button>
+      `;
     }
 
-    // 수량 변경 이벤트
-    cartBody.addEventListener("input", (e) => {
-      if (e.target.classList.contains("qty")) {
-        updateTotal();
-      }
-    });
+    function removeItem(index) {
+      cart.splice(index, 1);
+      localStorage.setItem("cart", JSON.stringify(cart));
+      renderCart();
+    }
 
-    // 삭제 버튼 이벤트
-    cartBody.addEventListener("click", (e) => {
-      if (e.target.classList.contains("delete-btn")) {
-        e.target.closest("tr").remove();
-        updateTotal();
-      }
-    });
+    function checkout() {
+      alert("주문이 완료되었습니다!");
+      localStorage.removeItem("cart");
+      window.location.href = "index.html";
+    }
 
-    // 주문 버튼 클릭 시 주문 데이터 저장 및 페이지 이동
-    document.getElementById("order-btn").addEventListener("click", () => {
-      const items = [];
-      cartBody.querySelectorAll("tr").forEach(row => {
-        const name = row.children[0].textContent;
-        const qty = row.querySelector(".qty").value;
-        items.push({ name, qty });
-      });
-      localStorage.setItem("order", JSON.stringify(items));
-      window.location.href = "order-summary.html";
-    });
-
-    // 최초 합계 계산
-    updateTotal();
+    renderCart();
   </script>
 </body>
 </html>
