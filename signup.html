@@ -1,14 +1,13 @@
+<!-- ✅ signup.html - 회원가입 페이지 -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
   <title>회원가입 - 한대리 로터스</title>
   <link rel="stylesheet" href="css/style.css">
-
-  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script> <!-- Firestore 추가 -->
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyB585bChkNk2ClCdkgq09j7m8-eo5163w",
@@ -21,12 +20,10 @@
     };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-    const db = firebase.firestore(); // Firestore 초기화
+    const db = firebase.firestore();
   </script>
 </head>
 <body>
-
-  <!-- ✅ 헤더 -->
   <header class="header">
     <div class="util-menu">
       <ul>
@@ -34,62 +31,41 @@
         <li class="auth-menu"><a href="login.html">로그인</a></li>
         <li><a href="#">주문조회</a></li>
         <li><a href="cart.html">장바구니</a></li>
-        <li id="logout-menu" style="display: none;">
-          <button id="logout-btn">로그아웃</button>
-        </li>
+        <li id="logout-menu" style="display: none;"><button id="logout-btn">로그아웃</button></li>
       </ul>
     </div>
     <h1><a href="index.html" class="logo">한대리 로터스</a></h1>
   </header>
 
-  <!-- ✅ 환영 메시지 -->
   <p id="welcome" style="text-align: right; padding-right: 1rem;"></p>
 
-  <!-- 메인 -->
   <main class="hero">
     <h2>회원가입</h2>
     <p id="signup-error" style="color: red; display: none;"></p>
-
     <form id="signup-form" style="max-width: 400px; margin: 0 auto; text-align: left;">
-      <label>이름<br>
-        <input type="text" name="name" id="name" required>
-      </label><br><br>
-      <label>이메일<br>
-        <input type="email" name="email" required>
-      </label><br><br>
-      <label>비밀번호<br>
-        <input type="password" name="password" id="password" minlength="6" required>
-      </label><br><br>
-      <label>비밀번호 확인<br>
-        <input type="password" name="confirm_password" id="confirm-password" minlength="6" required>
-      </label><br><br>
+      <label>이름<br><input type="text" name="name" id="name" required></label><br><br>
+      <label>이메일<br><input type="email" name="email" required></label><br><br>
+      <label>비밀번호<br><input type="password" name="password" id="password" minlength="6" required></label><br><br>
+      <label>비밀번호 확인<br><input type="password" name="confirm_password" id="confirm-password" minlength="6" required></label><br><br>
       <button type="submit">회원가입</button>
     </form>
   </main>
 
-  <!-- 푸터 -->
-  <footer class="footer">
-    &copy; 2025 한대리 로터스
-  </footer>
+  <footer class="footer">&copy; 2025 한대리 로터스</footer>
 
-  <!-- ✅ 로그인 상태 제어 + 로그아웃 처리 -->
   <script>
     const username = localStorage.getItem("username");
     if (username) {
       document.getElementById("welcome").innerHTML = `${username}님, 환영합니다!`;
       document.getElementById("logout-menu").style.display = "inline";
       document.querySelectorAll(".auth-menu").forEach(el => el.style.display = "none");
-
       document.getElementById("logout-btn").addEventListener("click", () => {
         localStorage.removeItem("username");
         alert("로그아웃 되었습니다.");
         window.location.href = "index.html";
       });
     }
-  </script>
 
-  <!-- ✅ Firebase 회원가입 + Firestore 저장 -->
-  <script>
     document.getElementById("signup-form").addEventListener("submit", function (e) {
       e.preventDefault();
       const name = document.getElementById("name").value;
@@ -108,8 +84,6 @@
         .then((userCredential) => {
           const uid = userCredential.user.uid;
           localStorage.setItem("username", email);
-
-          // Firestore에 사용자 정보 저장
           return db.collection("users").doc(uid).set({
             name: name,
             email: email,
@@ -126,6 +100,5 @@
         });
     });
   </script>
-
 </body>
 </html>
