@@ -3,20 +3,30 @@
 <head>
   <meta charset="UTF-8" />
   <title>주문조회 - 한대리 로터스</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="css/style.css" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 </head>
 <body class="bg-amber-50 text-gray-800">
-  <!-- 🔷 헤더 -->
-  <header class="bg-zinc-800 text-white py-4 text-center">
-    <h1 class="text-2xl font-bold">
+
+  <!-- 🔷 상단 헤더 -->
+  <header class="bg-zinc-800 text-white py-4">
+    <div class="util-menu text-right px-4 mb-2">
+      <ul id="menu-list" class="flex gap-3 justify-end text-sm"></ul>
+    </div>
+    <h1 class="text-2xl font-bold text-center">
       <a href="index.html" class="hover:underline">한대리 로터스</a>
     </h1>
   </header>
 
-  <!-- 🔷 메인 -->
+  <!-- 🔷 환영 메시지 -->
+  <p id="welcome" class="text-right pr-4 mt-2 text-sm text-gray-700"></p>
+
+  <!-- 🔷 메인 콘텐츠 -->
   <main class="max-w-3xl mx-auto py-10 px-4">
     <h2 class="text-xl font-semibold mb-6">📦 주문 조회</h2>
     <div id="order-list" class="space-y-4"></div>
@@ -27,7 +37,7 @@
     &copy; 2025 한대리 로터스
   </footer>
 
-  <!-- 🔷 Firebase 연동 및 주문 조회 -->
+  <!-- 🔷 Firebase 및 주문 조회 -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyB585bChkNk2ClCdkgq09j7m8-eo5163w",
@@ -38,15 +48,42 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.database();
+    const firestore = firebase.firestore();
 
     const orderListEl = document.getElementById("order-list");
+    const menuEl = document.getElementById("menu-list");
+    const welcomeEl = document.getElementById("welcome");
 
-    auth.onAuthStateChanged(user => {
+    auth.onAuthStateChanged(async user => {
       if (!user) {
         alert("로그인이 필요합니다.");
         location.href = "login.html";
         return;
       }
+
+      let name = user.email;
+      try {
+        const doc = await firestore.collection("users").doc(user.uid).get();
+        if (doc.exists && doc.data().name) name = doc.data().name;
+      } catch (e) {
+        console.error("이름 가져오기 실패:", e);
+      }
+
+      welcomeEl.innerText = `${name}님, 환영합니다!`;
+      menuEl.innerHTML = `
+        <li><a href="order-summary.html">주문조회</a></li>
+        <li><a href="mypage.html">마이페이지</a></li>
+        <li><a href="cart.html">장바구니</a></li>
+        <li><button id="logout-btn" class="hover:underline">로그아웃</button></li>
+      `;
+
+      document.getElementById("logout-btn").addEventListener("click", () => {
+        auth.signOut().then(() => {
+          localStorage.clear();
+          alert("로그아웃 되었습니다.");
+          window.location.href = "index.html";
+        });
+      });
 
       db.ref("orders").on("value", snapshot => {
         const data = snapshot.val();
@@ -62,7 +99,6 @@
         }
 
         orders.forEach(([id, order]) => {
-          const card = document.createElement("div");
           const itemsHTML = order.items.map(i => `
             <li class="flex justify-between text-sm">
               <span>${i.name}</span>
@@ -70,6 +106,7 @@
             </li>
           `).join("");
 
+          const card = document.createElement("div");
           card.className = "bg-white rounded shadow p-4 space-y-2";
           card.innerHTML = `
             <p><strong>주문번호:</strong> 

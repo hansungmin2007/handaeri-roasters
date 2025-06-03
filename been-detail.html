@@ -4,17 +4,32 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>원두 상세 - 한대리 로터스</title>
-  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 </head>
 <body class="bg-amber-50 text-gray-800">
-  <!-- ✅ 헤더 -->
-  <header class="header bg-zinc-800 text-white py-4 text-center">
-    <h1 class="text-2xl font-bold"><a href="index.html" class="logo hover:underline">한대리 로터스</a></h1>
+  <!-- 🔷 상단 헤더 -->
+  <header class="bg-zinc-800 text-white py-4">
+    <div class="util-menu text-right px-4 mb-2">
+      <ul id="menu-list" class="flex gap-3 justify-end text-sm"></ul>
+    </div>
+    <h1 class="text-2xl font-bold text-center">
+      <a href="index.html" class="hover:underline">한대리 로터스</a>
+    </h1>
+    <nav class="mt-2 text-center">
+      <ul class="flex justify-center gap-6 text-sm">
+        <li><a href="beans.html" class="hover:underline">원두 소개</a></li>
+        <li><a href="roaster.html" class="hover:underline">로스터 소개</a></li>
+      </ul>
+    </nav>
   </header>
 
-  <!-- ✅ 본문 -->
+  <!-- 🔷 환영 메시지 -->
+  <p id="welcome" class="text-right pr-4 mt-2 text-sm text-gray-700"></p>
+
+  <!-- 🔷 메인 콘텐츠 -->
   <main class="max-w-xl mx-auto py-10 px-4">
     <h2 class="text-xl font-semibold mb-6 text-center">☕ 원두 상세 정보</h2>
     <div id="bean-detail" class="bg-white shadow rounded p-6 space-y-2 text-sm">
@@ -25,12 +40,12 @@
     </div>
   </main>
 
-  <!-- ✅ 푸터 -->
-  <footer class="footer bg-zinc-800 text-white py-4 text-center">
+  <!-- 🔷 푸터 -->
+  <footer class="bg-zinc-800 text-white py-4 text-center">
     &copy; 2025 한대리 로터스
   </footer>
 
-  <!-- ✅ Firebase 로직 -->
+  <!-- 🔷 Firebase 로직 -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyB585bChkNk2ClCdkgq09j7m8-eo5163w",
@@ -38,12 +53,52 @@
       projectId: "handaeri-auth-test"
     };
     firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
     const db = firebase.firestore();
 
     const detailEl = document.getElementById("bean-detail");
     const params = new URLSearchParams(window.location.search);
     const id = params.get("id");
 
+    // 메뉴 & 로그인 상태 관리
+    const menuEl = document.getElementById("menu-list");
+    const welcomeEl = document.getElementById("welcome");
+
+    auth.onAuthStateChanged(async user => {
+      if (user) {
+        let name = user.email;
+        try {
+          const doc = await db.collection("users").doc(user.uid).get();
+          if (doc.exists && doc.data().name) name = doc.data().name;
+        } catch (e) {
+          console.error("이름 가져오기 실패:", e);
+        }
+
+        welcomeEl.innerText = `${name}님, 환영합니다!`;
+        menuEl.innerHTML = `
+          <li><a href="order-summary.html">주문조회</a></li>
+          <li><a href="mypage.html">마이페이지</a></li>
+          <li><a href="cart.html">장바구니</a></li>
+          <li><button id="logout-btn" class="hover:underline">로그아웃</button></li>
+        `;
+        document.getElementById("logout-btn").addEventListener("click", () => {
+          auth.signOut().then(() => {
+            localStorage.clear();
+            alert("로그아웃 되었습니다.");
+            window.location.href = "index.html";
+          });
+        });
+      } else {
+        menuEl.innerHTML = `
+          <li><a href="signup.html">회원가입</a></li>
+          <li><a href="login.html">로그인</a></li>
+          <li><a href="order-summary.html">주문조회</a></li>
+          <li><a href="cart.html">장바구니</a></li>
+        `;
+      }
+    });
+
+    // 원두 상세 정보 불러오기
     db.collection("beans").doc(id).get().then(doc => {
       if (!doc.exists) {
         detailEl.innerHTML = '<p class="text-red-500 text-center">존재하지 않는 원두입니다.</p>';

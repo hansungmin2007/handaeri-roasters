@@ -13,7 +13,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
   <script>
     const firebaseConfig = {
-      apiKey: "AIzaSyB585bChkNk2ClCdkgq09j7m8-eo5163w", // ✅ 확인 필요
+      apiKey: "AIzaSyB585bChkNk2ClCdkgq09j7m8-eo5163w",
       authDomain: "handaeri-auth-test.firebaseapp.com",
       projectId: "handaeri-auth-test",
       storageBucket: "handaeri-auth-test.appspot.com",
@@ -27,12 +27,21 @@
   </script>
 </head>
 <body class="bg-amber-50 text-gray-800">
-  <!-- ✅ Header -->
-  <header class="bg-zinc-800 text-white py-4 text-center">
-    <h1 class="text-2xl font-bold"><a href="index.html" class="hover:underline">한대리 로터스</a></h1>
+
+  <!-- ✅ 상단 헤더 + 유틸 메뉴 -->
+  <header class="bg-zinc-800 text-white py-4">
+    <div class="util-menu text-right px-4 mb-2">
+      <ul id="menu-list" class="flex gap-3 justify-end text-sm"></ul>
+    </div>
+    <h1 class="text-2xl font-bold text-center">
+      <a href="index.html" class="logo hover:underline">한대리 로터스</a>
+    </h1>
   </header>
 
-  <!-- ✅ Main -->
+  <!-- ✅ 환영 메시지 -->
+  <p id="welcome" class="text-right pr-4 mt-2 text-sm text-gray-700"></p>
+
+  <!-- ✅ 로그인 폼 -->
   <main class="max-w-md mx-auto py-10 px-4">
     <h2 class="text-xl font-semibold text-center mb-6">로그인</h2>
     <p id="login-error" class="text-red-500 text-sm text-center mb-4 hidden"></p>
@@ -49,11 +58,14 @@
     </form>
   </main>
 
-  <!-- ✅ Footer -->
+  <!-- ✅ 푸터 -->
   <footer class="bg-zinc-800 text-white text-center py-4">&copy; 2025 한대리 로터스</footer>
 
-  <!-- ✅ Script -->
+  <!-- ✅ 로그인 상태에 따른 메뉴 처리 -->
   <script>
+    const welcomeEl = document.getElementById("welcome");
+    const menuEl = document.getElementById("menu-list");
+
     auth.onAuthStateChanged(async (user) => {
       if (user) {
         const uid = user.uid;
@@ -70,7 +82,32 @@
 
         localStorage.setItem("username", name);
         localStorage.setItem("email", user.email);
-        window.location.href = "index.html";
+
+        welcomeEl.innerText = `${name}님, 환영합니다!`;
+
+        menuEl.innerHTML = `
+          <li><a href="order-summary.html">주문조회</a></li>
+          <li><a href="mypage.html">마이페이지</a></li>
+          <li><a href="cart.html">장바구니</a></li>
+          <li><button id="logout-btn" class="hover:underline">로그아웃</button></li>
+        `;
+
+        document.getElementById("logout-btn").addEventListener("click", () => {
+          auth.signOut().then(() => {
+            localStorage.clear();
+            alert("로그아웃 되었습니다.");
+            window.location.href = "index.html";
+          });
+        });
+
+      } else {
+        menuEl.innerHTML = `
+          <li><a href="signup.html">회원가입</a></li>
+          <li><a href="login.html">로그인</a></li>
+          <li><a href="order-summary.html">주문조회</a></li>
+          <li><a href="cart.html">장바구니</a></li>
+        `;
+        welcomeEl.innerText = "";
       }
     });
 

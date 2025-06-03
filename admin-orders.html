@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <title>관리자 - 주문/상품 관리</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="css/style.css" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
@@ -10,10 +12,21 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 </head>
 <body class="bg-zinc-50 text-gray-800">
-  <header class="bg-zinc-800 text-white py-4 text-center">
-    <h1 class="text-2xl font-bold">관리자 페이지</h1>
+
+  <!-- ✅ 헤더 -->
+  <header class="bg-zinc-800 text-white py-4">
+    <div class="util-menu text-right px-4 mb-2">
+      <ul id="menu-list" class="flex gap-3 justify-end text-sm"></ul>
+    </div>
+    <h1 class="text-2xl font-bold text-center">
+      <a href="index.html" class="logo hover:underline">관리자 페이지</a>
+    </h1>
   </header>
 
+  <!-- ✅ 환영 메시지 -->
+  <p id="welcome" class="text-right pr-4 mt-2 text-sm text-gray-700"></p>
+
+  <!-- ✅ 본문 -->
   <main class="max-w-5xl mx-auto py-10 px-4 space-y-10">
     <section>
       <h2 class="text-xl font-bold mb-4">📦 주문 목록</h2>
@@ -35,6 +48,7 @@
 
   <footer class="bg-zinc-800 text-white py-4 text-center">&copy; 2025 한대리 로터스</footer>
 
+  <!-- ✅ 스크립트 -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyB585bChkNk2ClCdkgq09j7m8-eo5163w",
@@ -50,25 +64,70 @@
     const orderList = document.getElementById("order-list");
     const beanForm = document.getElementById("bean-form");
     const beanList = document.getElementById("bean-list");
+    const menuEl = document.getElementById("menu-list");
+    const welcomeEl = document.getElementById("welcome");
 
-    // 주문 목록 로드
-    rtdb.ref("orders").on("value", snap => {
-      const orders = snap.val() || {};
-      orderList.innerHTML = "";
-      Object.entries(orders).forEach(([id, order]) => {
-        const div = document.createElement("div");
-        div.className = "bg-white rounded shadow p-4 space-y-2";
-        div.innerHTML = `
-          <p><strong>주문번호:</strong> ${id}</p>
-          <p><strong>고객:</strong> ${order.customer.name}</p>
-          <p><strong>상태:</strong>
-            <select onchange="updateStatus('${id}', this.value)" class="border rounded px-2 py-1">
-              <option value="배송 준비 중" ${order.status === '배송 준비 중' ? 'selected' : ''}>배송 준비 중</option>
-              <option value="배송 완료" ${order.status === '배송 완료' ? 'selected' : ''}>배송 완료</option>
-            </select>
-          </p>
-        `;
-        orderList.appendChild(div);
+    // 로그인 상태 확인 및 메뉴 렌더링
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) {
+        alert("로그인이 필요합니다.");
+        location.href = "login.html";
+        return;
+      }
+
+      let name = user.email;
+      const userDoc = await db.collection("users").doc(user.uid).get();
+
+      if (userDoc.exists && userDoc.data().name) {
+        name = userDoc.data().name;
+      }
+
+      welcomeEl.innerText = `${name}님, 환영합니다!`;
+
+      // 메뉴 렌더링
+      menuEl.innerHTML = `
+        <li><a href="order-summary.html">주문조회</a></li>
+        <li><a href="mypage.html">마이페이지</a></li>
+        <li><a href="cart.html">장바구니</a></li>
+        <li><button id="logout-btn" class="hover:underline">로그아웃</button></li>
+      `;
+
+      document.getElementById("logout-btn").addEventListener("click", () => {
+        auth.signOut().then(() => {
+          localStorage.clear();
+          alert("로그아웃 되었습니다.");
+          location.href = "index.html";
+        });
+      });
+
+      // 관리자 권한 확인
+      if (!userDoc.exists || userDoc.data().role !== "admin") {
+        alert("관리자 전용 페이지입니다.");
+        location.href = "index.html";
+        return;
+      }
+
+      renderBeans();
+
+      // 주문 불러오기
+      rtdb.ref("orders").on("value", snap => {
+        const orders = snap.val() || {};
+        orderList.innerHTML = "";
+        Object.entries(orders).forEach(([id, order]) => {
+          const div = document.createElement("div");
+          div.className = "bg-white rounded shadow p-4 space-y-2";
+          div.innerHTML = `
+            <p><strong>주문번호:</strong> ${id}</p>
+            <p><strong>고객:</strong> ${order.customer.name}</p>
+            <p><strong>상태:</strong>
+              <select onchange="updateStatus('${id}', this.value)" class="border rounded px-2 py-1">
+                <option value="배송 준비 중" ${order.status === '배송 준비 중' ? 'selected' : ''}>배송 준비 중</option>
+                <option value="배송 완료" ${order.status === '배송 완료' ? 'selected' : ''}>배송 완료</option>
+              </select>
+            </p>
+          `;
+          orderList.appendChild(div);
+        });
       });
     });
 
@@ -76,7 +135,6 @@
       rtdb.ref("orders/" + id).update({ status: newStatus });
     };
 
-    // 원두 목록 표시
     function renderBeans() {
       db.collection("beans").get().then(snapshot => {
         beanList.innerHTML = "";
@@ -96,7 +154,6 @@
       });
     }
 
-    // 상품 등록/수정
     beanForm.addEventListener("submit", e => {
       e.preventDefault();
       const name = document.getElementById("bean-name").value;
@@ -120,7 +177,6 @@
       }
     });
 
-    // 상품 수정
     window.editBean = function(id, name, region, process, price) {
       document.getElementById("bean-name").value = name;
       document.getElementById("bean-region").value = region;
@@ -129,27 +185,11 @@
       beanForm.dataset.editingId = id;
     };
 
-    // 상품 삭제
     window.deleteBean = function(id) {
       if (confirm("삭제하시겠습니까?")) {
         db.collection("beans").doc(id).delete().then(renderBeans);
       }
     };
-
-    // 관리자 권한 확인
-    auth.onAuthStateChanged(user => {
-      if (!user) location.href = "login.html";
-      else {
-        db.collection("users").doc(user.uid).get().then(doc => {
-          if (!doc.exists || doc.data().role !== "admin") {
-            alert("관리자 전용 페이지입니다.");
-            location.href = "index.html";
-          } else {
-            renderBeans();
-          }
-        });
-      }
-    });
   </script>
 </body>
 </html>

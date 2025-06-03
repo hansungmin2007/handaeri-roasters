@@ -3,20 +3,29 @@
 <head>
   <meta charset="UTF-8" />
   <title>주문 상세 - 한대리 로터스</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="css/style.css" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 </head>
 <body class="bg-amber-50 text-gray-800">
-  <!-- 🔷 헤더 -->
-  <header class="bg-zinc-800 text-white py-4 text-center">
-    <h1 class="text-2xl font-bold">
-      <a href="index.html" class="hover:underline">한대리 로터스</a>
+
+  <!-- 🔷 상단 헤더 -->
+  <header class="bg-zinc-800 text-white py-4">
+    <div class="util-menu text-right px-4 mb-2">
+      <ul id="menu-list" class="flex gap-3 justify-end text-sm"></ul>
+    </div>
+    <h1 class="text-2xl font-bold text-center">
+      <a href="index.html" class="logo hover:underline">한대리 로터스</a>
     </h1>
   </header>
 
-  <!-- 🔷 메인 -->
+  <!-- 🔷 환영 메시지 -->
+  <p id="welcome" class="text-right pr-4 mt-2 text-sm text-gray-700"></p>
+
+  <!-- 🔷 메인 콘텐츠 -->
   <main class="max-w-2xl mx-auto py-10 px-4">
     <h2 class="text-xl font-semibold mb-6">📄 주문 상세</h2>
     <div id="detail-container" class="bg-white rounded-lg shadow p-6 space-y-4">
@@ -34,7 +43,7 @@
     &copy; 2025 한대리 로터스
   </footer>
 
-  <!-- 🔷 Firebase 및 주문 정보 불러오기 -->
+  <!-- 🔷 Firebase 연동 및 UI 처리 -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyB585bChkNk2ClCdkgq09j7m8-eo5163w",
@@ -43,7 +52,44 @@
       projectId: "handaeri-auth-test"
     };
     firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
     const db = firebase.database();
+
+    const menuEl = document.getElementById("menu-list");
+    const welcomeEl = document.getElementById("welcome");
+
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        let name = user.email;
+        try {
+          const doc = await firebase.firestore().collection("users").doc(user.uid).get();
+          if (doc.exists && doc.data().name) name = doc.data().name;
+        } catch (e) {
+          console.error("이름 불러오기 실패:", e);
+        }
+        welcomeEl.innerText = `${name}님, 환영합니다!`;
+        menuEl.innerHTML = `
+          <li><a href="order-summary.html">주문조회</a></li>
+          <li><a href="mypage.html">마이페이지</a></li>
+          <li><a href="cart.html">장바구니</a></li>
+          <li><button id="logout-btn" class="hover:underline">로그아웃</button></li>
+        `;
+        document.getElementById("logout-btn").addEventListener("click", () => {
+          auth.signOut().then(() => {
+            localStorage.clear();
+            alert("로그아웃 되었습니다.");
+            window.location.href = "index.html";
+          });
+        });
+      } else {
+        menuEl.innerHTML = `
+          <li><a href="signup.html">회원가입</a></li>
+          <li><a href="login.html">로그인</a></li>
+          <li><a href="order-summary.html">주문조회</a></li>
+          <li><a href="cart.html">장바구니</a></li>
+        `;
+      }
+    });
 
     const params = new URLSearchParams(location.search);
     const id = params.get("id");
@@ -51,7 +97,6 @@
 
     db.ref("orders/" + id).once("value").then(snapshot => {
       const order = snapshot.val();
-
       if (!order) {
         container.innerHTML = `<p class='text-center text-red-500'>해당 주문을 찾을 수 없습니다.</p>`;
         return;

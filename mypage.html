@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <title>마이페이지 - 한대리 로터스</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="css/style.css" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
@@ -10,10 +12,21 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 </head>
 <body class="bg-amber-50 text-gray-800">
-  <header class="bg-zinc-800 text-white py-4 text-center">
-    <h1 class="text-2xl font-bold"><a href="index.html" class="hover:underline">한대리 로터스</a></h1>
+
+  <!-- ✅ 헤더 및 메뉴 -->
+  <header class="bg-zinc-800 text-white py-4">
+    <div class="util-menu text-right px-4 mb-2">
+      <ul id="menu-list" class="flex gap-3 justify-end text-sm"></ul>
+    </div>
+    <h1 class="text-2xl font-bold text-center">
+      <a href="index.html" class="logo hover:underline">한대리 로터스</a>
+    </h1>
   </header>
 
+  <!-- ✅ 환영 메시지 -->
+  <p id="welcome" class="text-right pr-4 mt-2 text-sm text-gray-700"></p>
+
+  <!-- ✅ 메인 -->
   <main class="max-w-3xl mx-auto py-10 px-4">
     <h2 class="text-xl font-semibold mb-6">👤 마이페이지</h2>
 
@@ -37,6 +50,7 @@
 
   <footer class="bg-zinc-800 text-white py-4 text-center">&copy; 2025 한대리 로터스</footer>
 
+  <!-- ✅ 로그인 상태 UI 처리 -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyB585bChkNk2ClCdkgq09j7m8-eo5163w",
@@ -50,8 +64,9 @@
     const firestore = firebase.firestore();
 
     const nameInput = document.getElementById("name-input");
-    const userInfoEl = document.getElementById("user-info");
     const orderListEl = document.getElementById("order-list");
+    const welcomeEl = document.getElementById("welcome");
+    const menuEl = document.getElementById("menu-list");
 
     auth.onAuthStateChanged(async user => {
       if (!user) {
@@ -60,11 +75,32 @@
         return;
       }
 
+      // 이름 출력
+      let name = user.email;
       const userDoc = await firestore.collection("users").doc(user.uid).get();
-      if (userDoc.exists) {
-        nameInput.value = userDoc.data().name || "";
+      if (userDoc.exists && userDoc.data().name) {
+        name = userDoc.data().name;
+        nameInput.value = name;
       }
+      welcomeEl.innerText = `${name}님, 환영합니다!`;
 
+      // 메뉴 구성
+      menuEl.innerHTML = `
+        <li><a href="order-summary.html">주문조회</a></li>
+        <li><a href="mypage.html">마이페이지</a></li>
+        <li><a href="cart.html">장바구니</a></li>
+        <li><button id="logout-btn" class="hover:underline">로그아웃</button></li>
+      `;
+
+      document.getElementById("logout-btn").addEventListener("click", () => {
+        auth.signOut().then(() => {
+          localStorage.clear();
+          alert("로그아웃 되었습니다.");
+          window.location.href = "index.html";
+        });
+      });
+
+      // 주문 조회
       db.ref("orders").on("value", snapshot => {
         const data = snapshot.val();
         const orders = Object.entries(data || {}).filter(([id, order]) => order.customer.email === user.email);
@@ -91,26 +127,28 @@
       });
     });
 
+    // 이름 수정
+    function updateName() {
+      const newName = nameInput.value.trim();
+      if (!newName) return alert("이름을 입력하세요.");
+      const user = auth.currentUser;
+      firestore.collection("users").doc(user.uid).update({ name: newName })
+        .then(() => alert("이름이 수정되었습니다."))
+        .catch(err => alert("오류: " + err.message));
+    }
+
+    // 비밀번호 변경
     function updatePassword() {
       const email = auth.currentUser.email;
-      firebase.auth().sendPasswordResetEmail(email)
+      auth.sendPasswordResetEmail(email)
         .then(() => alert("비밀번호 재설정 메일이 발송되었습니다."))
         .catch(err => alert("오류: " + err.message));
     }
 
+    // 이메일 인증
     function verifyEmail() {
       auth.currentUser.sendEmailVerification()
         .then(() => alert("인증 메일이 발송되었습니다."))
-        .catch(err => alert("오류: " + err.message));
-    }
-
-    function updateName() {
-      const newName = nameInput.value.trim();
-      if (!newName) return alert("이름을 입력하세요.");
-
-      const user = auth.currentUser;
-      firestore.collection("users").doc(user.uid).update({ name: newName })
-        .then(() => alert("이름이 수정되었습니다."))
         .catch(err => alert("오류: " + err.message));
     }
   </script>

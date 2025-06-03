@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <title>회원가입 - 한대리 로터스</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
@@ -26,37 +28,55 @@
   </script>
 </head>
 
-<body>
-  <header class="header">
-    <div class="util-menu">
-      <ul id="menu-list">
-        <li class="auth-menu"><a href="signup.html">회원가입</a></li>
-        <li class="auth-menu"><a href="login.html">로그인</a></li>
-        <li><a href="order-summary.html">주문조회</a></li>
-        <li><a href="cart.html">장바구니</a></li>
-        <li class="user-menu" style="display: none;"><a href="mypage.html">마이페이지</a></li>
-        <li id="logout-menu" style="display: none;"><button id="logout-btn">로그아웃</button></li>
+<body class="bg-amber-50 text-gray-800">
+  <!-- 헤더 -->
+  <header class="bg-zinc-800 text-white py-4">
+    <div class="util-menu text-right px-4 mb-2">
+      <ul id="menu-list" class="flex gap-3 justify-end text-sm">
+        <li class="auth-menu"><a href="signup.html" class="hover:underline">회원가입</a></li>
+        <li class="auth-menu"><a href="login.html" class="hover:underline">로그인</a></li>
+        <li><a href="order-summary.html" class="hover:underline">주문조회</a></li>
+        <li><a href="cart.html" class="hover:underline">장바구니</a></li>
+        <li class="user-menu hidden"><a href="mypage.html" class="hover:underline">마이페이지</a></li>
+        <li id="logout-menu" class="hidden"><button id="logout-btn" class="hover:underline">로그아웃</button></li>
       </ul>
     </div>
-    <h1><a href="index.html" class="logo">한대리 로터스</a></h1>
+    <h1 class="text-2xl font-bold text-center">
+      <a href="index.html" class="hover:underline">한대리 로터스</a>
+    </h1>
   </header>
 
-  <main class="hero">
-    <h2>회원가입</h2>
-    <p id="signup-error" style="color: red; display: none;"></p>
-    <form id="signup-form" style="max-width: 400px; margin: 0 auto; text-align: left;">
-      <label>이름<br><input type="text" name="name" id="name" required></label><br><br>
-      <label>이메일<br><input type="email" name="email" required></label><br><br>
-      <label>비밀번호<br><input type="password" name="password" id="password" minlength="6" required></label><br><br>
-      <label>비밀번호 확인<br><input type="password" name="confirm_password" id="confirm-password" minlength="6" required></label><br><br>
-      <button type="submit">회원가입</button>
+  <!-- 메인 -->
+  <main class="max-w-md mx-auto py-10 px-4">
+    <h2 class="text-xl font-semibold text-center mb-6">회원가입</h2>
+    <p id="signup-error" class="text-red-500 text-sm text-center mb-4 hidden"></p>
+    <form id="signup-form" class="bg-white p-6 rounded shadow space-y-4">
+      <div>
+        <label class="block text-sm font-medium">이름</label>
+        <input type="text" name="name" id="name" required class="mt-1 w-full border rounded px-3 py-2">
+      </div>
+      <div>
+        <label class="block text-sm font-medium">이메일</label>
+        <input type="email" name="email" required class="mt-1 w-full border rounded px-3 py-2">
+      </div>
+      <div>
+        <label class="block text-sm font-medium">비밀번호</label>
+        <input type="password" name="password" id="password" minlength="6" required class="mt-1 w-full border rounded px-3 py-2">
+      </div>
+      <div>
+        <label class="block text-sm font-medium">비밀번호 확인</label>
+        <input type="password" name="confirm_password" id="confirm-password" minlength="6" required class="mt-1 w-full border rounded px-3 py-2">
+      </div>
+      <button type="submit" class="w-full bg-zinc-800 text-white py-2 rounded hover:bg-zinc-700">회원가입</button>
     </form>
   </main>
 
-  <footer class="footer">&copy; 2025 한대리 로터스</footer>
+  <!-- 푸터 -->
+  <footer class="bg-zinc-800 text-white py-4 text-center">&copy; 2025 한대리 로터스</footer>
 
+  <!-- Script -->
   <script>
-    // 로그인 상태에 따라 메뉴 표시 전환
+    // 로그인 상태에 따라 메뉴 표시
     auth.onAuthStateChanged(async (user) => {
       if (user) {
         const uid = user.uid;
@@ -64,16 +84,14 @@
 
         try {
           const doc = await db.collection("users").doc(uid).get();
-          if (doc.exists && doc.data().name) {
-            name = doc.data().name;
-          }
+          if (doc.exists && doc.data().name) name = doc.data().name;
         } catch (e) {
           console.error("사용자 이름 가져오기 실패:", e);
         }
 
-        document.querySelectorAll(".auth-menu").forEach(el => el.style.display = "none");
-        document.querySelector(".user-menu").style.display = "inline";
-        document.getElementById("logout-menu").style.display = "inline";
+        document.querySelectorAll(".auth-menu").forEach(el => el.classList.add("hidden"));
+        document.querySelector(".user-menu").classList.remove("hidden");
+        document.getElementById("logout-menu").classList.remove("hidden");
 
         document.getElementById("logout-btn").addEventListener("click", () => {
           auth.signOut().then(() => {
@@ -96,7 +114,7 @@
 
       if (pw !== confirmPw) {
         errorEl.innerText = "비밀번호가 일치하지 않습니다.";
-        errorEl.style.display = "block";
+        errorEl.classList.remove("hidden");
         return;
       }
 
@@ -118,7 +136,7 @@
         })
         .catch(error => {
           errorEl.innerText = "오류: " + error.message;
-          errorEl.style.display = "block";
+          errorEl.classList.remove("hidden");
         });
     });
   </script>
