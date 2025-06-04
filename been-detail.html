@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>원두 상세 - 한대리 로터스</title>
   <script src="https://cdn.tailwindcss.com"></script>
@@ -12,16 +12,16 @@
 <body class="bg-amber-50 text-gray-800">
   <!-- 🔷 상단 헤더 -->
   <header class="bg-zinc-800 text-white py-4">
-    <div class="util-menu text-right px-4 mb-2">
-      <ul id="menu-list" class="flex gap-3 justify-end text-sm"></ul>
+    <div class="flex justify-end px-4 mb-2 text-sm" id="menu-wrapper">
+      <ul id="menu-list" class="flex gap-3"></ul>
     </div>
     <h1 class="text-2xl font-bold text-center">
-      <a href="index.html" class="hover:underline">한대리 로터스</a>
+      <a href="index.html" class="no-underline">한대리 로터스</a>
     </h1>
     <nav class="mt-2 text-center">
       <ul class="flex justify-center gap-6 text-sm">
-        <li><a href="beans.html" class="hover:underline">원두 소개</a></li>
-        <li><a href="roaster.html" class="hover:underline">로스터 소개</a></li>
+        <li><a href="beans.html" class="no-underline">원두 소개</a></li>
+        <li><a href="roaster.html" class="no-underline">로스터 소개</a></li>
       </ul>
     </nav>
   </header>
@@ -60,7 +60,6 @@
     const params = new URLSearchParams(window.location.search);
     const id = params.get("id");
 
-    // 메뉴 & 로그인 상태 관리
     const menuEl = document.getElementById("menu-list");
     const welcomeEl = document.getElementById("welcome");
 
@@ -76,29 +75,36 @@
 
         welcomeEl.innerText = `${name}님, 환영합니다!`;
         menuEl.innerHTML = `
-          <li><a href="order-summary.html">주문조회</a></li>
-          <li><a href="mypage.html">마이페이지</a></li>
-          <li><a href="cart.html">장바구니</a></li>
+          <li><a href="order-summary.html" class="no-underline">주문조회</a></li>
+          <li><a href="mypage.html" class="no-underline">마이페이지</a></li>
+          <li><a href="cart.html" class="no-underline">장바구니</a></li>
           <li><button id="logout-btn" class="hover:underline">로그아웃</button></li>
         `;
-        document.getElementById("logout-btn").addEventListener("click", () => {
-          auth.signOut().then(() => {
-            localStorage.clear();
-            alert("로그아웃 되었습니다.");
-            window.location.href = "index.html";
-          });
-        });
+
+        // 로그아웃 버튼 이벤트 연결
+        setTimeout(() => {
+          const logoutBtn = document.getElementById("logout-btn");
+          if (logoutBtn) {
+            logoutBtn.addEventListener("click", () => {
+              auth.signOut().then(() => {
+                localStorage.clear();
+                alert("로그아웃 되었습니다.");
+                window.location.href = "index.html";
+              });
+            });
+          }
+        }, 100);
       } else {
         menuEl.innerHTML = `
-          <li><a href="signup.html">회원가입</a></li>
-          <li><a href="login.html">로그인</a></li>
-          <li><a href="order-summary.html">주문조회</a></li>
-          <li><a href="cart.html">장바구니</a></li>
+          <li><a href="signup.html" class="no-underline">회원가입</a></li>
+          <li><a href="login.html" class="no-underline">로그인</a></li>
+          <li><a href="order-summary.html" class="no-underline">주문조회</a></li>
+          <li><a href="cart.html" class="no-underline">장바구니</a></li>
         `;
       }
     });
 
-    // 원두 상세 정보 불러오기
+    // 원두 상세 정보 표시
     db.collection("beans").doc(id).get().then(doc => {
       if (!doc.exists) {
         detailEl.innerHTML = '<p class="text-red-500 text-center">존재하지 않는 원두입니다.</p>';

@@ -119,3 +119,7 @@ a {
 a:hover {
   text-decoration: none;
 }
+
+.no-underline {
+  text-decoration: none;
+}
