@@ -1,141 +1,140 @@
-/* ===== 공통 기본 설정 ===== */
+/* ==========================
+   기본 설정
+========================== */
 body {
-  margin: 0;
-  padding: 0;
   font-family: 'Noto Sans KR', sans-serif;
-  background-color: #fdfaf6;
-  color: #222;
-}
-
-/* ===== 헤더 ===== */
-.header {
-  padding: 1rem;
-  text-align: center;
-  border-bottom: 1px solid #ddd;
-}
-
-.header-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.logo {
-  font-size: 1.8rem;
-  font-weight: bold;
-  margin: 0;
-}
-
-.logo a {
-  text-decoration: none;
-  color: #222;
-}
-
-.util-menu {
-  list-style: none;
-  display: flex;
-  gap: 0.5rem;
   margin: 0;
   padding: 0;
-  font-size: 0.875rem;
-  justify-content: flex-end;
-}
-
-.util-menu li {
-  position: relative;
-  padding: 0 0.5rem;
-}
-
-.util-menu li:not(:last-child)::after {
-  content: '|';
-  position: absolute;
-  right: -0.4rem;
-  color: #999;
-}
-
-.util-menu a, .util-menu button {
-  text-decoration: none;
+  background: #fdfaf6;
   color: #222;
-  background: none;
-  border: none;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
   cursor: pointer;
-  font: inherit;
+  border: none;
+  background: none;
+  font-family: inherit;
 }
 
-.util-menu button:hover,
-.util-menu a:hover {
-  text-decoration: underline;
-}
-
-/* ===== 네비게이션 바 ===== */
-.navbar {
+input, button, textarea, select {
+  outline: none;
+  border: none;
   background-color: transparent;
-  border-top: 1px solid #eee;
-  border-bottom: 1px solid #eee;
-  padding: 0.5rem 0;
 }
 
-.nav-links {
-  list-style: none;
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin: 0;
-  padding: 0;
-}
-
-.nav-links li a {
-  text-decoration: none;
-  color: #333;
-  font-weight: 500;
-}
-
-.nav-links li a:hover {
-  text-decoration: underline;
-}
-
-/* ===== 푸터 ===== */
-.footer {
-  text-align: center;
-  padding: 1rem;
-  font-size: 0.85rem;
-  color: #555;
-  border-top: 1px solid #ddd;
-  background: transparent;
-}
-
-/* ===== 포커스 테두리 제거 ===== */
-a:focus,
-button:focus,
-input:focus,
-textarea:focus {
+input:focus, button:focus, textarea:focus, select:focus {
   outline: none;
   box-shadow: none;
-  border-color: inherit;
 }
 
-/* ===== 환영 메시지 ===== */
+/* ==========================
+   헤더 / 푸터
+========================== */
+.header, .footer {
+  background: none;
+  color: #222;
+  padding: 1rem 0;
+  text-align: center;
+  border-bottom: 1px solid #ccc;
+}
+
+.footer {
+  border-top: 1px solid #ccc;
+  margin-top: 2rem;
+}
+
+/* ==========================
+   로고
+========================== */
+.logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+}
+
+/* ==========================
+   유틸 메뉴
+========================== */
+.util-menu {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 1rem;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.util-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.util-menu li::after {
+  content: '|';
+  margin-left: 0.75rem;
+  color: #888;
+}
+
+.util-menu li:last-child::after {
+  content: '';
+}
+
+/* ==========================
+   내비게이션 링크
+========================== */
+.nav-links {
+  display: flex;
+  justify-content: center;
+  list-style: none;
+  gap: 2rem;
+  padding: 0;
+  margin: 1rem 0;
+}
+
+.nav-links a {
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.nav-links a:hover {
+  color: #6b4e2e;
+}
+
+/* ==========================
+   환영 메시지
+========================== */
 .welcome {
   text-align: right;
   padding: 0 1rem;
-  font-size: 0.875rem;
-  color: #444;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #555;
 }
 
-/* ===== 페이지별 메인 ===== */
-.hero {
-  text-align: center;
-  padding: 4rem 1rem;
+/* ==========================
+   메인 섹션 (공통)
+========================== */
+main {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 1rem;
 }
 
-/* 페이지별 스타일은 각 HTML에서 <main> 영역에 class 추가하여 구분 가능 */
-.main-beans {}
-.main-roaster {}
+/* ==========================
+   각 페이지 전용 메인 스타일
+========================== */
 .main-cart {}
-.main-mypage {}
 .main-order {}
+.main-mypage {}
+.main-detail {}
 .main-admin {}
-.main-login {}
-.main-signup {}
+
+/* 필요에 따라 개별 클래스 추가 가능 */
