@@ -5,7 +5,6 @@
   <title>장바구니 - 한대리 로터스</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="css/style.css" />
-  <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- ✅ Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
@@ -27,33 +26,32 @@
     const db = firebase.firestore();
   </script>
 </head>
-<body class="bg-amber-50 text-gray-800">
+<body>
+
   <!-- ✅ 헤더 -->
-  <header class="bg-zinc-800 text-white py-4">
-    <div class="util-menu text-right px-4 mb-2">
-      <ul id="menu-list" class="flex justify-end gap-4 text-sm"></ul>
+  <header class="header">
+    <div class="menu-wrapper">
+      <ul id="menu-list" class="menu-list"></ul>
     </div>
-    <h1 class="text-2xl font-bold text-center">
-      <a href="index.html" class="hover:underline">한대리 로터스</a>
+    <h1 class="site-title">
+      <a href="index.html" class="logo">한대리 로터스</a>
     </h1>
   </header>
 
   <!-- ✅ 환영 메시지 -->
-  <p id="welcome" class="text-right pr-4 mt-2 text-sm text-gray-700"></p>
+  <p id="welcome" class="welcome-text"></p>
 
   <!-- ✅ 메인 콘텐츠 -->
-  <main class="max-w-3xl mx-auto py-10 px-4">
-    <h2 class="text-xl font-semibold mb-6 text-center">🛒 내 장바구니</h2>
-    <div id="cart-items" class="space-y-4"></div>
-    <div id="cart-summary" class="mt-6 text-right"></div>
+  <main class="main-container">
+    <h2 class="section-title text-center">🛒 내 장바구니</h2>
+    <div id="cart-items" class="cart-items"></div>
+    <div id="cart-summary" class="cart-summary"></div>
   </main>
 
   <!-- ✅ 푸터 -->
-  <footer class="bg-zinc-800 text-white py-4 text-center">
-    &copy; 2025 한대리 로터스
-  </footer>
+  <footer class="footer">&copy; 2025 한대리 로터스</footer>
 
-  <!-- ✅ 로그인 상태 메뉴 처리 -->
+  <!-- ✅ 로그인 메뉴 처리 -->
   <script>
     const menu = document.getElementById("menu-list");
     const welcomeEl = document.getElementById("welcome");
@@ -73,7 +71,7 @@
           <li><a href="order-summary.html">주문조회</a></li>
           <li><a href="mypage.html">마이페이지</a></li>
           <li><a href="cart.html">장바구니</a></li>
-          <li><button id="logout-btn" class="hover:underline">로그아웃</button></li>
+          <li><button id="logout-btn">로그아웃</button></li>
         `;
         document.getElementById("logout-btn").addEventListener("click", () => {
           auth.signOut().then(() => {
@@ -104,7 +102,7 @@
       cartSummaryEl.innerHTML = "";
 
       if (cart.length === 0) {
-        cartItemsEl.innerHTML = "<p class='text-center text-gray-500'>장바구니가 비어있습니다.</p>";
+        cartItemsEl.innerHTML = "<p class='text-center text-muted'>장바구니가 비어있습니다.</p>";
         return;
       }
 
@@ -114,19 +112,19 @@
         total += itemTotal;
 
         const div = document.createElement("div");
-        div.className = "p-4 bg-white rounded shadow";
+        div.className = "cart-item";
         div.innerHTML = `
-          <p class="text-lg font-semibold">${item.name}</p>
+          <p class="item-name">${item.name}</p>
           <p>${item.qty}개 × ${item.price.toLocaleString()}원</p>
-          <p class="text-sm text-gray-500">총 ${itemTotal.toLocaleString()}원</p>
-          <button onclick="removeItem(${index})" class="mt-2 text-sm text-red-500 hover:underline">❌ 삭제</button>
+          <p class="text-muted">총 ${itemTotal.toLocaleString()}원</p>
+          <button onclick="removeItem(${index})" class="btn-small btn-danger">❌ 삭제</button>
         `;
         cartItemsEl.appendChild(div);
       });
 
       cartSummaryEl.innerHTML = `
-        <p class="text-lg font-bold mb-2">총합: ${total.toLocaleString()}원</p>
-        <button onclick="checkout()" class="bg-zinc-800 text-white px-4 py-2 rounded hover:bg-zinc-700">✅ 주문하기</button>
+        <p class="total-price">총합: ${total.toLocaleString()}원</p>
+        <button onclick="checkout()" class="btn">✅ 주문하기</button>
       `;
     }
 

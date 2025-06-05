@@ -5,64 +5,63 @@
   <title>원두 관리 - 한대리 로터스</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="css/style.css">
-  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 </head>
-<body class="bg-amber-50 text-gray-800">
+<body class="bg-light text-dark">
 
   <!-- ✅ 헤더 -->
-  <header class="bg-zinc-800 text-white py-4">
-    <div class="util-menu text-right px-4 mb-2">
-      <ul id="menu-list" class="flex gap-3 justify-end text-sm"></ul>
+  <header class="header">
+    <div class="menu-wrapper">
+      <ul id="menu-list" class="menu-list"></ul>
     </div>
-    <h1 class="text-2xl font-bold text-center">
-      <a href="index.html" class="logo hover:underline">한대리 로터스</a>
+    <h1 class="site-title">
+      <a href="index.html" class="logo">한대리 로터스</a>
     </h1>
   </header>
 
   <!-- ✅ 환영 메시지 -->
-  <p id="welcome" class="text-right pr-4 mt-2 text-sm text-gray-700"></p>
+  <p id="welcome" class="welcome-text"></p>
 
   <!-- ✅ 메인 -->
-  <main class="max-w-4xl mx-auto py-10 px-4">
-    <h2 class="text-xl font-semibold mb-6">🛠 원두 관리 (관리자 전용)</h2>
+  <main class="main-container">
+    <h2 class="section-title">🛠 원두 관리 (관리자 전용)</h2>
 
-    <form id="bean-form" class="bg-white p-6 rounded shadow space-y-4">
+    <form id="bean-form" class="form-box">
       <input type="hidden" id="bean-id">
-      <div>
-        <label class="block font-medium">이름</label>
-        <input type="text" id="bean-name" required class="w-full border rounded px-3 py-2">
+      <div class="form-group">
+        <label>이름</label>
+        <input type="text" id="bean-name" required>
       </div>
-      <div>
-        <label class="block font-medium">지역</label>
-        <input type="text" id="bean-region" required class="w-full border rounded px-3 py-2">
+      <div class="form-group">
+        <label>지역</label>
+        <input type="text" id="bean-region" required>
       </div>
-      <div>
-        <label class="block font-medium">가공방식</label>
-        <input type="text" id="bean-process" required class="w-full border rounded px-3 py-2">
+      <div class="form-group">
+        <label>가공방식</label>
+        <input type="text" id="bean-process" required>
       </div>
-      <div>
-        <label class="block font-medium">노트</label>
-        <input type="text" id="bean-notes" class="w-full border rounded px-3 py-2">
+      <div class="form-group">
+        <label>노트</label>
+        <input type="text" id="bean-notes">
       </div>
-      <div>
-        <label class="block font-medium">가격</label>
-        <input type="number" id="bean-price" required class="w-full border rounded px-3 py-2">
+      <div class="form-group">
+        <label>가격</label>
+        <input type="number" id="bean-price" required>
       </div>
-      <button type="submit" class="bg-zinc-800 text-white px-4 py-2 rounded hover:bg-zinc-700">저장</button>
+      <button type="submit" class="btn">저장</button>
     </form>
 
-    <div class="mt-10 overflow-x-auto">
-      <table class="w-full border-collapse mt-6 text-sm">
+    <div class="table-wrapper">
+      <table class="data-table">
         <thead>
-          <tr class="bg-amber-100">
-            <th class="border px-4 py-2">이름</th>
-            <th class="border px-4 py-2">지역</th>
-            <th class="border px-4 py-2">가공</th>
-            <th class="border px-4 py-2">가격</th>
-            <th class="border px-4 py-2">관리</th>
+          <tr>
+            <th>이름</th>
+            <th>지역</th>
+            <th>가공</th>
+            <th>가격</th>
+            <th>관리</th>
           </tr>
         </thead>
         <tbody id="bean-list"></tbody>
@@ -70,7 +69,8 @@
     </div>
   </main>
 
-  <footer class="bg-zinc-800 text-white text-center py-4">&copy; 2025 한대리 로터스</footer>
+  <!-- ✅ 푸터 -->
+  <footer class="footer">&copy; 2025 한대리 로터스</footer>
 
   <!-- ✅ Firebase 연동 -->
   <script>
@@ -97,7 +97,6 @@
         return location.href = "index.html";
       }
 
-      // 사용자 이름 불러오기
       let name = user.email;
       if (userDoc.data().name) name = userDoc.data().name;
       welcomeEl.innerText = `${name}님, 환영합니다!`;
@@ -106,7 +105,7 @@
         <li><a href="order-summary.html">주문조회</a></li>
         <li><a href="mypage.html">마이페이지</a></li>
         <li><a href="cart.html">장바구니</a></li>
-        <li><button id="logout-btn" class="hover:underline">로그아웃</button></li>
+        <li><button id="logout-btn">로그아웃</button></li>
       `;
 
       document.getElementById("logout-btn").addEventListener("click", () => {
@@ -118,7 +117,6 @@
       });
     });
 
-    // 원두 저장
     form.addEventListener("submit", e => {
       e.preventDefault();
       const id = document.getElementById("bean-id").value;
@@ -136,21 +134,19 @@
       }
     });
 
-    // 원두 목록 출력
     db.collection("beans").onSnapshot(snapshot => {
       listEl.innerHTML = "";
       snapshot.forEach(doc => {
         const b = doc.data();
         const row = document.createElement("tr");
-        row.className = "border-t";
         row.innerHTML = `
-          <td class="border px-4 py-2">${b.name}</td>
-          <td class="border px-4 py-2">${b.region}</td>
-          <td class="border px-4 py-2">${b.process}</td>
-          <td class="border px-4 py-2">${b.price.toLocaleString()} 원</td>
-          <td class="border px-4 py-2">
-            <button onclick="editBean('${doc.id}', ${JSON.stringify(b).replace(/"/g, '&quot;')})" class="text-blue-600 mr-2">✏️</button>
-            <button onclick="deleteBean('${doc.id}')" class="text-red-600">🗑</button>
+          <td>${b.name}</td>
+          <td>${b.region}</td>
+          <td>${b.process}</td>
+          <td>${b.price.toLocaleString()} 원</td>
+          <td>
+            <button onclick="editBean('${doc.id}', ${JSON.stringify(b).replace(/"/g, '&quot;')})">✏️</button>
+            <button onclick="deleteBean('${doc.id}')">🗑</button>
           </td>
         `;
         listEl.appendChild(row);

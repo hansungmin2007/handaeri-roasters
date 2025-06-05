@@ -3,53 +3,54 @@
 <head>
   <meta charset="UTF-8">
   <title>관리자 - 주문/상품 관리</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="css/style.css" />
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/style.css">
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 </head>
-<body class="bg-zinc-50 text-gray-800">
+<body>
 
-  <!-- ✅ 헤더 -->
-  <header class="bg-zinc-800 text-white py-4">
-    <div class="util-menu text-right px-4 mb-2">
-      <ul id="menu-list" class="flex gap-3 justify-end text-sm"></ul>
+  <!-- 헤더 -->
+  <header class="header">
+    <div class="menu-wrapper">
+      <ul id="menu-list" class="menu-list"></ul>
     </div>
-    <h1 class="text-2xl font-bold text-center">
-      <a href="index.html" class="logo hover:underline">관리자 페이지</a>
+    <h1 class="site-title">
+      <a href="index.html" class="logo">관리자 페이지</a>
     </h1>
   </header>
 
-  <!-- ✅ 환영 메시지 -->
-  <p id="welcome" class="text-right pr-4 mt-2 text-sm text-gray-700"></p>
+  <!-- 환영 메시지 -->
+  <p id="welcome" class="welcome-text"></p>
 
-  <!-- ✅ 본문 -->
-  <main class="max-w-5xl mx-auto py-10 px-4 space-y-10">
+  <!-- 본문 -->
+  <main class="main-container">
     <section>
-      <h2 class="text-xl font-bold mb-4">📦 주문 목록</h2>
-      <div id="order-list" class="space-y-4"></div>
+      <h2 class="section-title">📦 주문 목록</h2>
+      <div id="order-list" class="order-list"></div>
     </section>
 
     <section>
-      <h2 class="text-xl font-bold mb-4">☕ 상품 관리</h2>
-      <form id="bean-form" class="space-y-2">
-        <input type="text" placeholder="이름" id="bean-name" class="w-full p-2 border rounded">
-        <input type="text" placeholder="지역" id="bean-region" class="w-full p-2 border rounded">
-        <input type="text" placeholder="가공방식" id="bean-process" class="w-full p-2 border rounded">
-        <input type="number" placeholder="가격" id="bean-price" class="w-full p-2 border rounded">
-        <button type="submit" class="bg-zinc-800 text-white px-4 py-2 rounded">추가 / 수정</button>
+      <h2 class="section-title">☕ 상품 관리</h2>
+      <form id="bean-form" class="form-box">
+        <input type="text" placeholder="이름" id="bean-name" class="input">
+        <input type="text" placeholder="지역" id="bean-region" class="input">
+        <input type="text" placeholder="가공방식" id="bean-process" class="input">
+        <input type="number" placeholder="가격" id="bean-price" class="input">
+        <button type="submit" class="btn">추가 / 수정</button>
       </form>
-      <div id="bean-list" class="grid grid-cols-2 gap-4 mt-6"></div>
+      <div id="bean-list" class="bean-grid"></div>
     </section>
   </main>
 
-  <footer class="bg-zinc-800 text-white py-4 text-center">&copy; 2025 한대리 로터스</footer>
+  <!-- 푸터 -->
+  <footer class="footer">&copy; 2025 한대리 로터스</footer>
 
-  <!-- ✅ 스크립트 -->
+  <!-- 스크립트 (동일) -->
   <script>
+    // 기존 JavaScript 로직 그대로 유지
     const firebaseConfig = {
       apiKey: "AIzaSyB585bChkNk2ClCdkgq09j7m8-eo5163w",
       authDomain: "handaeri-auth-test.firebaseapp.com",
@@ -67,7 +68,6 @@
     const menuEl = document.getElementById("menu-list");
     const welcomeEl = document.getElementById("welcome");
 
-    // 로그인 상태 확인 및 메뉴 렌더링
     auth.onAuthStateChanged(async (user) => {
       if (!user) {
         alert("로그인이 필요합니다.");
@@ -77,19 +77,14 @@
 
       let name = user.email;
       const userDoc = await db.collection("users").doc(user.uid).get();
-
-      if (userDoc.exists && userDoc.data().name) {
-        name = userDoc.data().name;
-      }
+      if (userDoc.exists && userDoc.data().name) name = userDoc.data().name;
 
       welcomeEl.innerText = `${name}님, 환영합니다!`;
-
-      // 메뉴 렌더링
       menuEl.innerHTML = `
         <li><a href="order-summary.html">주문조회</a></li>
         <li><a href="mypage.html">마이페이지</a></li>
         <li><a href="cart.html">장바구니</a></li>
-        <li><button id="logout-btn" class="hover:underline">로그아웃</button></li>
+        <li><button id="logout-btn">로그아웃</button></li>
       `;
 
       document.getElementById("logout-btn").addEventListener("click", () => {
@@ -100,7 +95,6 @@
         });
       });
 
-      // 관리자 권한 확인
       if (!userDoc.exists || userDoc.data().role !== "admin") {
         alert("관리자 전용 페이지입니다.");
         location.href = "index.html";
@@ -109,18 +103,17 @@
 
       renderBeans();
 
-      // 주문 불러오기
       rtdb.ref("orders").on("value", snap => {
         const orders = snap.val() || {};
         orderList.innerHTML = "";
         Object.entries(orders).forEach(([id, order]) => {
           const div = document.createElement("div");
-          div.className = "bg-white rounded shadow p-4 space-y-2";
+          div.className = "card";
           div.innerHTML = `
             <p><strong>주문번호:</strong> ${id}</p>
             <p><strong>고객:</strong> ${order.customer.name}</p>
             <p><strong>상태:</strong>
-              <select onchange="updateStatus('${id}', this.value)" class="border rounded px-2 py-1">
+              <select onchange="updateStatus('${id}', this.value)" class="select">
                 <option value="배송 준비 중" ${order.status === '배송 준비 중' ? 'selected' : ''}>배송 준비 중</option>
                 <option value="배송 완료" ${order.status === '배송 완료' ? 'selected' : ''}>배송 완료</option>
               </select>
@@ -141,13 +134,13 @@
         snapshot.forEach(doc => {
           const b = doc.data();
           const div = document.createElement("div");
-          div.className = "bg-white border rounded p-4 space-y-1";
+          div.className = "card";
           div.innerHTML = `
             <p><strong>${b.name}</strong></p>
             <p>${b.region} | ${b.process}</p>
             <p>${b.price.toLocaleString()}원</p>
-            <button onclick="editBean('${doc.id}', '${b.name}', '${b.region}', '${b.process}', ${b.price})" class="text-blue-600">수정</button>
-            <button onclick="deleteBean('${doc.id}')" class="text-red-600 ml-2">삭제</button>
+            <button onclick="editBean('${doc.id}', '${b.name}', '${b.region}', '${b.process}', ${b.price})" class="link-blue">수정</button>
+            <button onclick="deleteBean('${doc.id}')" class="link-red">삭제</button>
           `;
           beanList.appendChild(div);
         });

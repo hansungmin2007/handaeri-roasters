@@ -5,43 +5,39 @@
   <title>주문 상세 - 한대리 로터스</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="css/style.css" />
-  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 </head>
-<body class="bg-amber-50 text-gray-800">
+<body>
 
   <!-- 🔷 상단 헤더 -->
-  <header class="bg-zinc-800 text-white py-4">
-    <div class="util-menu text-right px-4 mb-2">
-      <ul id="menu-list" class="flex gap-3 justify-end text-sm"></ul>
+  <header class="header">
+    <div class="menu-wrapper">
+      <ul id="menu-list" class="menu-list"></ul>
     </div>
-    <h1 class="text-2xl font-bold text-center">
-      <a href="index.html" class="logo hover:underline">한대리 로터스</a>
+    <h1 class="site-title">
+      <a href="index.html" class="logo">한대리 로터스</a>
     </h1>
   </header>
 
   <!-- 🔷 환영 메시지 -->
-  <p id="welcome" class="text-right pr-4 mt-2 text-sm text-gray-700"></p>
+  <p id="welcome" class="welcome-text"></p>
 
   <!-- 🔷 메인 콘텐츠 -->
-  <main class="max-w-2xl mx-auto py-10 px-4">
-    <h2 class="text-xl font-semibold mb-6">📄 주문 상세</h2>
-    <div id="detail-container" class="bg-white rounded-lg shadow p-6 space-y-4">
-      <p class="text-gray-500">로딩 중...</p>
+  <main class="main-container">
+    <h2 class="section-title">📄 주문 상세</h2>
+    <div id="detail-container" class="card">
+      <p class="text-muted">로딩 중...</p>
     </div>
-    <div class="text-center mt-6">
-      <button onclick="history.back()" class="bg-zinc-800 text-white px-4 py-2 rounded hover:bg-zinc-700">
-        🔙 돌아가기
-      </button>
+    <div class="text-center mt-4">
+      <button onclick="history.back()" class="btn">🔙 돌아가기</button>
     </div>
   </main>
 
   <!-- 🔷 푸터 -->
-  <footer class="bg-zinc-800 text-white py-4 text-center">
-    &copy; 2025 한대리 로터스
-  </footer>
+  <footer class="footer">&copy; 2025 한대리 로터스</footer>
 
   <!-- 🔷 Firebase 연동 및 UI 처리 -->
   <script>
@@ -54,15 +50,16 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.database();
+    const firestore = firebase.firestore();
 
     const menuEl = document.getElementById("menu-list");
     const welcomeEl = document.getElementById("welcome");
 
-    auth.onAuthStateChanged(async (user) => {
+    auth.onAuthStateChanged(async user => {
       if (user) {
         let name = user.email;
         try {
-          const doc = await firebase.firestore().collection("users").doc(user.uid).get();
+          const doc = await firestore.collection("users").doc(user.uid).get();
           if (doc.exists && doc.data().name) name = doc.data().name;
         } catch (e) {
           console.error("이름 불러오기 실패:", e);
@@ -72,7 +69,7 @@
           <li><a href="order-summary.html">주문조회</a></li>
           <li><a href="mypage.html">마이페이지</a></li>
           <li><a href="cart.html">장바구니</a></li>
-          <li><button id="logout-btn" class="hover:underline">로그아웃</button></li>
+          <li><button id="logout-btn">로그아웃</button></li>
         `;
         document.getElementById("logout-btn").addEventListener("click", () => {
           auth.signOut().then(() => {
@@ -98,28 +95,28 @@
     db.ref("orders/" + id).once("value").then(snapshot => {
       const order = snapshot.val();
       if (!order) {
-        container.innerHTML = `<p class='text-center text-red-500'>해당 주문을 찾을 수 없습니다.</p>`;
+        container.innerHTML = `<p class='text-error text-center'>해당 주문을 찾을 수 없습니다.</p>`;
         return;
       }
 
       const items = order.items || [];
       const itemsHTML = items.length > 0
-        ? items.map(i => `<li class="flex justify-between text-sm"><span>${i.name}</span><span>${i.qty}개</span></li>`).join("")
-        : "<li class='text-gray-500'>상품 정보 없음</li>";
+        ? items.map(i => `<li class="item-row"><span>${i.name}</span><span>${i.qty}개</span></li>`).join("")
+        : "<li class='text-muted'>상품 정보 없음</li>";
 
       container.innerHTML = `
         <p><strong>📄 주문번호:</strong> ${id}</p>
         <p><strong>👤 이름:</strong> ${order.customer?.name || "-"}</p>
         <p><strong>📞 연락처:</strong> ${order.customer?.phone || "-"}</p>
         <p><strong>🏠 주소:</strong> ${order.customer?.address || "-"}</p>
-        <p><strong>🚚 배송 상태:</strong> <span class="text-green-600">${order.status || "-"}</span></p>
-        <div>
-          <p class="font-semibold mt-4 mb-2">🛍 상품 목록:</p>
-          <ul class="bg-gray-100 rounded p-3 space-y-1 list-none">${itemsHTML}</ul>
+        <p><strong>🚚 배송 상태:</strong> <span class="status">${order.status || "-"}</span></p>
+        <div class="item-list-wrapper">
+          <p class="list-title">🛍 상품 목록:</p>
+          <ul class="item-list">${itemsHTML}</ul>
         </div>
       `;
     }).catch(err => {
-      container.innerHTML = `<p class="text-red-500">오류가 발생했습니다: ${err.message}</p>`;
+      container.innerHTML = `<p class="text-error">오류가 발생했습니다: ${err.message}</p>`;
     });
   </script>
 </body>

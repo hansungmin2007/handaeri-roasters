@@ -5,9 +5,8 @@
   <title>로그인 - 한대리 로터스</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="css/style.css" />
-  <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- ✅ Firebase SDK -->
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
@@ -26,42 +25,42 @@
     const db = firebase.firestore();
   </script>
 </head>
-<body class="bg-amber-50 text-gray-800">
+<body class="bg-light text-dark">
 
-  <!-- ✅ 상단 헤더 + 유틸 메뉴 -->
-  <header class="bg-zinc-800 text-white py-4">
-    <div class="util-menu text-right px-4 mb-2">
-      <ul id="menu-list" class="flex gap-3 justify-end text-sm"></ul>
+  <!-- 헤더 -->
+  <header class="header">
+    <div class="util-menu">
+      <ul id="menu-list" class="menu-list"></ul>
     </div>
-    <h1 class="text-2xl font-bold text-center">
-      <a href="index.html" class="logo hover:underline">한대리 로터스</a>
+    <h1 class="site-title">
+      <a href="index.html" class="logo">한대리 로터스</a>
     </h1>
   </header>
 
-  <!-- ✅ 환영 메시지 -->
-  <p id="welcome" class="text-right pr-4 mt-2 text-sm text-gray-700"></p>
+  <!-- 환영 메시지 -->
+  <p id="welcome" class="welcome-text"></p>
 
-  <!-- ✅ 로그인 폼 -->
-  <main class="max-w-md mx-auto py-10 px-4">
-    <h2 class="text-xl font-semibold text-center mb-6">로그인</h2>
-    <p id="login-error" class="text-red-500 text-sm text-center mb-4 hidden"></p>
-    <form id="login-form" class="bg-white p-6 rounded shadow space-y-4">
-      <div>
-        <label class="block text-sm font-medium">이메일</label>
-        <input type="email" name="email" required class="mt-1 w-full border rounded px-3 py-2">
+  <!-- 로그인 폼 -->
+  <main class="login-container">
+    <h2 class="section-title">로그인</h2>
+    <p id="login-error" class="error-text hidden"></p>
+    <form id="login-form" class="form-box">
+      <div class="form-group">
+        <label for="email">이메일</label>
+        <input type="email" name="email" required />
       </div>
-      <div>
-        <label class="block text-sm font-medium">비밀번호</label>
-        <input type="password" name="password" minlength="6" required class="mt-1 w-full border rounded px-3 py-2">
+      <div class="form-group">
+        <label for="password">비밀번호</label>
+        <input type="password" name="password" required minlength="6" />
       </div>
-      <button type="submit" class="w-full bg-zinc-800 text-white py-2 rounded hover:bg-zinc-700">로그인</button>
+      <button type="submit" class="submit-btn">로그인</button>
     </form>
   </main>
 
-  <!-- ✅ 푸터 -->
-  <footer class="bg-zinc-800 text-white text-center py-4">&copy; 2025 한대리 로터스</footer>
+  <!-- 푸터 -->
+  <footer class="footer">&copy; 2025 한대리 로터스</footer>
 
-  <!-- ✅ 로그인 상태에 따른 메뉴 처리 -->
+  <!-- 로그인 상태에 따른 메뉴 처리 -->
   <script>
     const welcomeEl = document.getElementById("welcome");
     const menuEl = document.getElementById("menu-list");
@@ -89,7 +88,7 @@
           <li><a href="order-summary.html">주문조회</a></li>
           <li><a href="mypage.html">마이페이지</a></li>
           <li><a href="cart.html">장바구니</a></li>
-          <li><button id="logout-btn" class="hover:underline">로그아웃</button></li>
+          <li><button id="logout-btn">로그아웃</button></li>
         `;
 
         document.getElementById("logout-btn").addEventListener("click", () => {

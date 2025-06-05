@@ -5,11 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>한대리 로터스</title>
   <link rel="stylesheet" href="css/style.css" />
-  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
-
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyB585bChkNk2ClCdkgq09j7m8-eo5163w",
@@ -23,39 +21,36 @@
     firebase.initializeApp(firebaseConfig);
   </script>
 </head>
-<body class="bg-amber-50 text-gray-800">
-
-  <!-- ✅ 헤더 -->
-  <header class="header bg-zinc-800 text-white py-4">
-    <div class="flex justify-between items-center px-4">
-      <h1 class="text-xl font-bold">
-        <a href="index.html" class="logo hover:underline">한대리 로터스</a>
-      </h1>
-      <ul id="menu-list" class="util-menu flex gap-4 text-sm"></ul>
+<body class="main-body">
+  <!-- 헤더 -->
+  <header class="header">
+    <div class="header-container">
+      <h1 class="logo"><a href="index.html">한대리 로터스</a></h1>
+      <ul id="menu-list" class="util-menu"></ul>
     </div>
-    <nav class="navbar mt-3 text-center">
-      <ul class="flex justify-center gap-6 text-white text-sm">
-        <li><a href="beans.html" class="hover:underline">원두 소개</a></li>
-        <li><a href="roaster.html" class="hover:underline">로스터 소개</a></li>
+    <nav class="navbar">
+      <ul class="nav-links">
+        <li><a href="beans.html">원두 소개</a></li>
+        <li><a href="roaster.html">로스터 소개</a></li>
       </ul>
     </nav>
   </header>
 
-  <!-- ✅ 환영 메시지 -->
-  <p id="welcome" class="text-right pr-4 mt-2 text-sm text-gray-700"></p>
+  <!-- 환영 메시지 -->
+  <p id="welcome" class="welcome"></p>
 
-  <!-- ✅ 메인 -->
-  <main class="hero text-center py-12 px-4">
-    <h2 class="text-2xl font-semibold">한 잔의 커피는 기억을 깨우고,<br>한 장의 사진은 그 기억을 남깁니다.</h2>
-    <p class="mt-4">로스터 한대리가 선별한 특별한 원두를 만나보세요.</p>
+  <!-- 메인 -->
+  <main class="hero">
+    <h2>한 잔의 커피는 기억을 깨우고,<br>한 장의 사진은 그 기억을 남깁니다.</h2>
+    <p>로스터 한대리가 선별한 특별한 원두를 만나보세요.</p>
   </main>
 
-  <!-- ✅ 푸터 -->
-  <footer class="footer text-center py-4 bg-zinc-800 text-white">
+  <!-- 푸터 -->
+  <footer class="footer">
     &copy; 2025 한대리 로터스
   </footer>
 
-  <!-- ✅ 로그인 상태 처리 -->
+  <!-- 로그인 상태 처리 -->
   <script>
     const auth = firebase.auth();
     const db = firebase.firestore();
@@ -74,10 +69,10 @@
 
         welcomeEl.innerText = `${name}님, 환영합니다!`;
         menuEl.innerHTML = `
-          <li><a href="order-summary.html" class="hover:underline">주문조회</a></li>
-          <li><a href="mypage.html" class="hover:underline">마이페이지</a></li>
-          <li><a href="cart.html" class="hover:underline">장바구니</a></li>
-          <li><button id="logout-btn" class="hover:underline">로그아웃</button></li>
+          <li><a href="order-summary.html">주문조회</a></li>
+          <li><a href="mypage.html">마이페이지</a></li>
+          <li><a href="cart.html">장바구니</a></li>
+          <li><button id="logout-btn">로그아웃</button></li>
         `;
 
         document.getElementById("logout-btn").addEventListener("click", () => {
@@ -90,10 +85,10 @@
 
       } else {
         menuEl.innerHTML = `
-          <li><a href="signup.html" class="hover:underline">회원가입</a></li>
-          <li><a href="login.html" class="hover:underline">로그인</a></li>
-          <li><a href="order-summary.html" class="hover:underline">주문조회</a></li>
-          <li><a href="cart.html" class="hover:underline">장바구니</a></li>
+          <li><a href="signup.html">회원가입</a></li>
+          <li><a href="login.html">로그인</a></li>
+          <li><a href="order-summary.html">주문조회</a></li>
+          <li><a href="cart.html">장바구니</a></li>
         `;
         welcomeEl.innerText = "";
       }

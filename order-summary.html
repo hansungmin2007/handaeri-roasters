@@ -5,37 +5,34 @@
   <title>주문조회 - 한대리 로터스</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="css/style.css" />
-  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 </head>
-<body class="bg-amber-50 text-gray-800">
+<body>
 
   <!-- 🔷 상단 헤더 -->
-  <header class="bg-zinc-800 text-white py-4">
-    <div class="util-menu text-right px-4 mb-2">
-      <ul id="menu-list" class="flex gap-3 justify-end text-sm"></ul>
+  <header class="header">
+    <div class="menu-wrapper">
+      <ul id="menu-list" class="menu-list"></ul>
     </div>
-    <h1 class="text-2xl font-bold text-center">
-      <a href="index.html" class="hover:underline">한대리 로터스</a>
+    <h1 class="site-title">
+      <a href="index.html" class="logo">한대리 로터스</a>
     </h1>
   </header>
 
   <!-- 🔷 환영 메시지 -->
-  <p id="welcome" class="text-right pr-4 mt-2 text-sm text-gray-700"></p>
+  <p id="welcome" class="welcome-text"></p>
 
   <!-- 🔷 메인 콘텐츠 -->
-  <main class="max-w-3xl mx-auto py-10 px-4">
-    <h2 class="text-xl font-semibold mb-6">📦 주문 조회</h2>
-    <div id="order-list" class="space-y-4"></div>
+  <main class="main-container">
+    <h2 class="section-title">📦 주문 조회</h2>
+    <div id="order-list" class="order-list"></div>
   </main>
 
   <!-- 🔷 푸터 -->
-  <footer class="bg-zinc-800 text-white py-4 text-center">
-    &copy; 2025 한대리 로터스
-  </footer>
+  <footer class="footer">&copy; 2025 한대리 로터스</footer>
 
   <!-- 🔷 Firebase 및 주문 조회 -->
   <script>
@@ -74,7 +71,7 @@
         <li><a href="order-summary.html">주문조회</a></li>
         <li><a href="mypage.html">마이페이지</a></li>
         <li><a href="cart.html">장바구니</a></li>
-        <li><button id="logout-btn" class="hover:underline">로그아웃</button></li>
+        <li><button id="logout-btn">로그아웃</button></li>
       `;
 
       document.getElementById("logout-btn").addEventListener("click", () => {
@@ -94,32 +91,32 @@
         orderListEl.innerHTML = "";
 
         if (orders.length === 0) {
-          orderListEl.innerHTML = `<p class='text-gray-500'>주문 내역이 없습니다.</p>`;
+          orderListEl.innerHTML = `<p class='empty-message'>주문 내역이 없습니다.</p>`;
           return;
         }
 
         orders.forEach(([id, order]) => {
           const itemsHTML = order.items.map(i => `
-            <li class="flex justify-between text-sm">
+            <li class="item-row">
               <span>${i.name}</span>
               <span>${i.qty}개</span>
             </li>
           `).join("");
 
           const card = document.createElement("div");
-          card.className = "bg-white rounded shadow p-4 space-y-2";
+          card.className = "order-card";
           card.innerHTML = `
             <p><strong>주문번호:</strong> 
-              <a href="order-detail.html?id=${id}" class="text-blue-600 hover:underline">${id}</a>
+              <a href="order-detail.html?id=${id}" class="link">${id}</a>
             </p>
             <p><strong>배송 상태:</strong> 
-              <span class="${order.status === '배송 완료' ? 'text-green-600' : 'text-yellow-600'}">
+              <span class="${order.status === '배송 완료' ? 'status-complete' : 'status-pending'}">
                 ${order.status || '대기 중'}
               </span>
             </p>
-            <ul class="space-y-1">${itemsHTML}</ul>
+            <ul class="item-list">${itemsHTML}</ul>
             ${order.status !== '배송 완료' 
-              ? `<p class='text-sm text-gray-500'>※ 배송 준비 중입니다. 배송 완료 시 알림이 제공됩니다.</p>` 
+              ? `<p class='note-text'>※ 배송 준비 중입니다. 배송 완료 시 알림이 제공됩니다.</p>` 
               : ''}
           `;
           orderListEl.appendChild(card);

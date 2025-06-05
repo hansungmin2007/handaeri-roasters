@@ -4,46 +4,45 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>원두 상세 - 한대리 로터스</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/style.css" />
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 </head>
-<body class="bg-amber-50 text-gray-800">
+<body class="bg-light text-dark">
+
   <!-- 🔷 상단 헤더 -->
-  <header class="bg-zinc-800 text-white py-4">
-    <div class="flex justify-end px-4 mb-2 text-sm" id="menu-wrapper">
-      <ul id="menu-list" class="flex gap-3"></ul>
+  <header class="header">
+    <div class="menu-wrapper">
+      <ul id="menu-list" class="menu-list"></ul>
     </div>
-    <h1 class="text-2xl font-bold text-center">
-      <a href="index.html" class="no-underline">한대리 로터스</a>
+    <h1 class="site-title">
+      <a href="index.html" class="logo">한대리 로터스</a>
     </h1>
-    <nav class="mt-2 text-center">
-      <ul class="flex justify-center gap-6 text-sm">
-        <li><a href="beans.html" class="no-underline">원두 소개</a></li>
-        <li><a href="roaster.html" class="no-underline">로스터 소개</a></li>
+    <nav class="nav-menu">
+      <ul>
+        <li><a href="beans.html">원두 소개</a></li>
+        <li><a href="roaster.html">로스터 소개</a></li>
       </ul>
     </nav>
   </header>
 
   <!-- 🔷 환영 메시지 -->
-  <p id="welcome" class="text-right pr-4 mt-2 text-sm text-gray-700"></p>
+  <p id="welcome" class="welcome-text"></p>
 
   <!-- 🔷 메인 콘텐츠 -->
-  <main class="max-w-xl mx-auto py-10 px-4">
-    <h2 class="text-xl font-semibold mb-6 text-center">☕ 원두 상세 정보</h2>
-    <div id="bean-detail" class="bg-white shadow rounded p-6 space-y-2 text-sm">
-      <p class="text-center text-gray-500">로딩 중...</p>
+  <main class="main-container">
+    <h2 class="section-title">☕ 원두 상세 정보</h2>
+    <div id="bean-detail" class="bean-detail">
+      <p class="loading-text">로딩 중...</p>
     </div>
-    <div class="text-center mt-6">
-      <button onclick="history.back()" class="bg-zinc-800 text-white px-4 py-2 rounded hover:bg-zinc-700">🔙 목록으로</button>
+    <div class="center mt">
+      <button onclick="history.back()" class="btn">🔙 목록으로</button>
     </div>
   </main>
 
   <!-- 🔷 푸터 -->
-  <footer class="bg-zinc-800 text-white py-4 text-center">
-    &copy; 2025 한대리 로터스
-  </footer>
+  <footer class="footer">&copy; 2025 한대리 로터스</footer>
 
   <!-- 🔷 Firebase 로직 -->
   <script>
@@ -75,13 +74,12 @@
 
         welcomeEl.innerText = `${name}님, 환영합니다!`;
         menuEl.innerHTML = `
-          <li><a href="order-summary.html" class="no-underline">주문조회</a></li>
-          <li><a href="mypage.html" class="no-underline">마이페이지</a></li>
-          <li><a href="cart.html" class="no-underline">장바구니</a></li>
-          <li><button id="logout-btn" class="hover:underline">로그아웃</button></li>
+          <li><a href="order-summary.html">주문조회</a></li>
+          <li><a href="mypage.html">마이페이지</a></li>
+          <li><a href="cart.html">장바구니</a></li>
+          <li><button id="logout-btn">로그아웃</button></li>
         `;
 
-        // 로그아웃 버튼 이벤트 연결
         setTimeout(() => {
           const logoutBtn = document.getElementById("logout-btn");
           if (logoutBtn) {
@@ -96,32 +94,31 @@
         }, 100);
       } else {
         menuEl.innerHTML = `
-          <li><a href="signup.html" class="no-underline">회원가입</a></li>
-          <li><a href="login.html" class="no-underline">로그인</a></li>
-          <li><a href="order-summary.html" class="no-underline">주문조회</a></li>
-          <li><a href="cart.html" class="no-underline">장바구니</a></li>
+          <li><a href="signup.html">회원가입</a></li>
+          <li><a href="login.html">로그인</a></li>
+          <li><a href="order-summary.html">주문조회</a></li>
+          <li><a href="cart.html">장바구니</a></li>
         `;
       }
     });
 
-    // 원두 상세 정보 표시
     db.collection("beans").doc(id).get().then(doc => {
       if (!doc.exists) {
-        detailEl.innerHTML = '<p class="text-red-500 text-center">존재하지 않는 원두입니다.</p>';
+        detailEl.innerHTML = '<p class="error-text">존재하지 않는 원두입니다.</p>';
         return;
       }
 
       const bean = doc.data();
       detailEl.innerHTML = `
-        <h3 class="text-lg font-bold">${bean.name || '이름 없음'}</h3>
-        ${bean.imageUrl ? `<img src="${bean.imageUrl}" alt="${bean.name}" class="w-full h-48 object-cover rounded">` : ""}
+        <h3 class="bean-name">${bean.name || '이름 없음'}</h3>
+        ${bean.imageUrl ? `<img src="${bean.imageUrl}" alt="${bean.name}" class="bean-image">` : ""}
         <p><strong>지역:</strong> ${bean.region || '-'}</p>
         <p><strong>가공방식:</strong> ${bean.process || '-'}</p>
         <p><strong>노트:</strong> ${bean.notes || '-'}</p>
         <p><strong>가격:</strong> ${(bean.price || 0).toLocaleString()} 원</p>
       `;
     }).catch(err => {
-      detailEl.innerHTML = `<p class="text-red-500 text-center">오류가 발생했습니다: ${err.message}</p>`;
+      detailEl.innerHTML = `<p class="error-text">오류가 발생했습니다: ${err.message}</p>`;
     });
   </script>
 </body>

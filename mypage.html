@@ -5,50 +5,51 @@
   <title>마이페이지 - 한대리 로터스</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="css/style.css" />
-  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 </head>
-<body class="bg-amber-50 text-gray-800">
+<body>
 
   <!-- ✅ 헤더 및 메뉴 -->
-  <header class="bg-zinc-800 text-white py-4">
-    <div class="util-menu text-right px-4 mb-2">
-      <ul id="menu-list" class="flex gap-3 justify-end text-sm"></ul>
+  <header class="header">
+    <div class="menu-wrapper">
+      <ul id="menu-list" class="menu-list"></ul>
     </div>
-    <h1 class="text-2xl font-bold text-center">
-      <a href="index.html" class="logo hover:underline">한대리 로터스</a>
+    <h1 class="site-title">
+      <a href="index.html" class="logo">한대리 로터스</a>
     </h1>
   </header>
 
   <!-- ✅ 환영 메시지 -->
-  <p id="welcome" class="text-right pr-4 mt-2 text-sm text-gray-700"></p>
+  <p id="welcome" class="welcome-text"></p>
 
   <!-- ✅ 메인 -->
-  <main class="max-w-3xl mx-auto py-10 px-4">
-    <h2 class="text-xl font-semibold mb-6">👤 마이페이지</h2>
+  <main class="main-container">
+    <h2 class="section-title">👤 마이페이지</h2>
 
-    <section class="mb-8">
-      <div id="user-info" class="bg-white p-6 rounded shadow space-y-4">
-        <div>
-          <label class="block mb-1 font-medium">이름</label>
-          <input type="text" id="name-input" class="w-full border rounded px-3 py-2" />
+    <section class="section-box">
+      <div id="user-info" class="card">
+        <div class="form-group">
+          <label>이름</label>
+          <input type="text" id="name-input" class="input" />
         </div>
-        <button onclick="updateName()" class="bg-zinc-800 text-white px-4 py-2 rounded hover:bg-zinc-700">이름 수정</button>
-        <button onclick="updatePassword()" class="ml-2 bg-zinc-800 text-white px-4 py-2 rounded">비밀번호 변경</button>
-        <button onclick="verifyEmail()" class="ml-2 bg-zinc-800 text-white px-4 py-2 rounded">이메일 인증</button>
+        <div class="btn-group">
+          <button onclick="updateName()" class="btn">이름 수정</button>
+          <button onclick="updatePassword()" class="btn">비밀번호 변경</button>
+          <button onclick="verifyEmail()" class="btn">이메일 인증</button>
+        </div>
       </div>
     </section>
 
-    <section>
-      <h3 class="text-lg font-semibold mb-4">📦 내 주문 목록</h3>
-      <div id="order-list" class="space-y-4"></div>
+    <section class="section-box">
+      <h3 class="sub-title">📦 내 주문 목록</h3>
+      <div id="order-list" class="order-list"></div>
     </section>
   </main>
 
-  <footer class="bg-zinc-800 text-white py-4 text-center">&copy; 2025 한대리 로터스</footer>
+  <footer class="footer">&copy; 2025 한대리 로터스</footer>
 
   <!-- ✅ 로그인 상태 UI 처리 -->
   <script>
@@ -75,7 +76,6 @@
         return;
       }
 
-      // 이름 출력
       let name = user.email;
       const userDoc = await firestore.collection("users").doc(user.uid).get();
       if (userDoc.exists && userDoc.data().name) {
@@ -84,14 +84,12 @@
       }
       welcomeEl.innerText = `${name}님, 환영합니다!`;
 
-      // 메뉴 구성
       menuEl.innerHTML = `
         <li><a href="order-summary.html">주문조회</a></li>
         <li><a href="mypage.html">마이페이지</a></li>
         <li><a href="cart.html">장바구니</a></li>
-        <li><button id="logout-btn" class="hover:underline">로그아웃</button></li>
+        <li><button id="logout-btn">로그아웃</button></li>
       `;
-
       document.getElementById("logout-btn").addEventListener("click", () => {
         auth.signOut().then(() => {
           localStorage.clear();
@@ -100,34 +98,32 @@
         });
       });
 
-      // 주문 조회
       db.ref("orders").on("value", snapshot => {
         const data = snapshot.val();
         const orders = Object.entries(data || {}).filter(([id, order]) => order.customer.email === user.email);
         orderListEl.innerHTML = "";
 
         if (orders.length === 0) {
-          orderListEl.innerHTML = `<p class='text-gray-500'>주문 내역이 없습니다.</p>`;
+          orderListEl.innerHTML = `<p class="text-muted">주문 내역이 없습니다.</p>`;
           return;
         }
 
         orders.forEach(([id, order]) => {
           const card = document.createElement("div");
-          card.className = "bg-white rounded shadow p-4 space-y-2";
+          card.className = "card";
           card.innerHTML = `
-            <p><strong>주문번호:</strong> <a href="order-detail.html?id=${id}" class="text-blue-600 hover:underline">${id}</a></p>
-            <p><strong>배송 상태:</strong> <span class="text-green-600">${order.status}</span></p>
-            <ul class="space-y-1">
-              ${order.items.map(i => `<li class="flex justify-between text-sm"><span>${i.name}</span><span>${i.qty}개</span></li>`).join("")}
+            <p><strong>주문번호:</strong> <a href="order-detail.html?id=${id}" class="link">${id}</a></p>
+            <p><strong>배송 상태:</strong> <span class="text-success">${order.status}</span></p>
+            <ul class="item-list">
+              ${order.items.map(i => `<li><span>${i.name}</span><span>${i.qty}개</span></li>`).join("")}
             </ul>
-            <button onclick="alert('주문 취소 문의는 고객센터로 연락 주세요.')" class="text-sm text-red-500 hover:underline">주문 취소 문의</button>
+            <button onclick="alert('주문 취소 문의는 고객센터로 연락 주세요.')" class="btn-small btn-danger">주문 취소 문의</button>
           `;
           orderListEl.appendChild(card);
         });
       });
     });
 
-    // 이름 수정
     function updateName() {
       const newName = nameInput.value.trim();
       if (!newName) return alert("이름을 입력하세요.");
@@ -137,7 +133,6 @@
         .catch(err => alert("오류: " + err.message));
     }
 
-    // 비밀번호 변경
     function updatePassword() {
       const email = auth.currentUser.email;
       auth.sendPasswordResetEmail(email)
@@ -145,7 +140,6 @@
         .catch(err => alert("오류: " + err.message));
     }
 
-    // 이메일 인증
     function verifyEmail() {
       auth.currentUser.sendEmailVerification()
         .then(() => alert("인증 메일이 발송되었습니다."))
