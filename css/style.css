@@ -1,9 +1,9 @@
 /* ===== 기본 설정 ===== */
 body {
+  font-family: 'Noto Sans KR', sans-serif;
   margin: 0;
   padding: 0;
-  font-family: 'Noto Sans KR', sans-serif;
-  background-color: #fdfaf6;
+  background: #fdfaf6;
   color: #333;
 }
 
@@ -12,16 +12,19 @@ a {
   color: inherit;
 }
 
-ul {
-  list-style: none;
-  padding-left: 0;
-  margin: 0;
+a:focus,
+button:focus,
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  box-shadow: none;
+  border-color: inherit;
 }
 
 /* ===== 헤더 / 푸터 ===== */
-.header,
-.footer {
-  background-color: #2e2b28;
+.header, .footer {
+  background: #2e2b28;
   color: white;
   padding: 1rem;
   text-align: center;
@@ -31,44 +34,34 @@ ul {
   margin-top: 2rem;
 }
 
-.site-title {
-  font-size: 1.5rem;
-  font-weight: bold;
-}
-
+/* ===== 로고 ===== */
 .logo {
   text-decoration: none;
-  color: white;
+  font-weight: bold;
+  font-size: 1.5rem;
 }
 
-.logo:hover {
-  text-decoration: underline;
-}
-
-/* ===== 상단 유틸 메뉴 ===== */
+/* ===== 유틸 메뉴 (회원가입, 로그인 등) ===== */
 .util-menu {
-  text-align: right;
-  padding: 0 1rem 0.5rem 0;
-}
-
-.menu-list {
   display: flex;
   justify-content: flex-end;
-  gap: 1rem;
-  font-size: 0.9rem;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  padding-right: 1rem;
+  margin-bottom: 0.5rem;
+  list-style: none;
 }
 
-.menu-list li a,
-.menu-list li button {
-  color: white;
-  background: none;
-  border: none;
-  cursor: pointer;
+.util-menu li {
+  position: relative;
+  padding: 0 0.5rem;
 }
 
-.menu-list li button:hover,
-.menu-list li a:hover {
-  text-decoration: underline;
+.util-menu li:not(:last-child)::after {
+  content: '|';
+  position: absolute;
+  right: -0.4rem;
+  color: #ccc;
 }
 
 /* ===== 환영 메시지 ===== */
