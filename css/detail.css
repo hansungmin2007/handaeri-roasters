@@ -1,0 +1,71 @@
+.bean-detail-box {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+  justify-content: center;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+.bean-image img {
+  width: 400px;
+  height: 400px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.bean-info {
+  max-width: 500px;
+  flex: 1;
+}
+
+.bean-info h2 {
+  margin-top: 0;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.bean-info p {
+  font-size: 1rem;
+  margin: 1rem 0;
+  color: #555;
+}
+
+.bean-price {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #000;
+}
+
+.buy-btn {
+  padding: 0.7rem 1.5rem;
+  font-size: 1rem;
+  background: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.buy-btn:hover {
+  background: #43a047;
+}
+
+@media (max-width: 768px) {
+  .bean-detail-box {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .bean-image img {
+    width: 100%;
+    height: auto;
+    max-width: 360px;
+  }
+
+  .bean-info {
+    text-align: center;
+  }
+}

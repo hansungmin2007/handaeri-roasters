@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>회원가입 | BEAN & FRAME</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/auth.css" />
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-init.js"></script>
+</head>
+<body>
+  <header class="header">
+    <div class="util-bar">
+      <ul class="util-menu">
+        <li><a href="signup.html">회원가입</a></li>
+        <li><a href="login.html">로그인</a></li>
+        <li><a href="order-summary.html">주문조회</a></li>
+        <li><a href="cart.html">장바구니</a></li>
+      </ul>
+    </div>
+    <div class="logo"><a href="index.html">BEAN & FRAME</a></div>
+    <nav>
+      <ul class="main-nav">
+        <li><a href="index.html#intro">BEAN & FRAME 소개</a></li>
+        <li><a href="beans.html">원두</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container auth-container">
+    <div class="auth-form">
+      <h1>회원가입</h1>
+      <form class="signup-form">
+        <label for="name">이름</label>
+        <input type="text" id="name" required />
+
+        <label for="email">이메일</label>
+        <input type="email" id="email" required />
+
+        <label for="password">비밀번호</label>
+        <input type="password" id="password" required />
+
+        <label for="confirm-password">비밀번호 확인</label>
+        <input type="password" id="confirm-password" required />
+
+        <button type="submit">가입하기</button>
+      </form>
+    </div>
+  </main>
+
+  <footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-logo">BEAN & FRAME</div>
+
+    <div class="footer-top">
+      <a href="terms.html">이용약관</a>
+      <a href="privacy.html">개인정보처리방침</a>
+    </div>
+    <div class="footer-grid">
+      <div class="footer-company">
+      <p><span class="inline">상호명: BEAN & FRAME</span> <span class="inline">대표: 한욱철</span></p>
+      <p>주소: 경기도 수원시 어딘가 123</p>
+      <p>사업자등록번호: 123-45-67890</p>
+      <p>통신판매업신고번호: 제2025-경기시흥흥-0000호</p>
+    </div>
+    </div>
+
+    <div class="footer-copy">
+      &copy; 2025 BEAN & FRAME. All Rights Reserved.
+    </div>
+  </div>
+
+  <script>
+    const db = firebase.firestore();
+
+    document.querySelector(".signup-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const confirmPassword = document.getElementById("confirm-password").value;
+
+      const oldMsg = document.querySelector(".error-message");
+      if (oldMsg) oldMsg.remove();
+
+      if (password !== confirmPassword) {
+        const errorMsg = document.createElement("p");
+        errorMsg.className = "error-message";
+        errorMsg.textContent = "비밀번호가 일치하지 않습니다.";
+        document.querySelector(".signup-form").appendChild(errorMsg);
+        return;
+      }
+
+      firebase.auth().createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          const user = userCredential.user;
+          return db.collection("users").doc(user.uid).set({
+            name: name,
+            email: email,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        })
+        .then(() => {
+          alert("회원가입 성공!");
+          window.location.href = "login.html";
+        })
+        .catch((error) => {
+          const errorMsg = document.createElement("p");
+          errorMsg.className = "error-message";
+          errorMsg.textContent = "회원가입 실패: " + error.message;
+          document.querySelector(".signup-form").appendChild(errorMsg);
+        });
+    });
+  </script>
+</body>
+</html>

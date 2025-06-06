@@ -5,39 +5,62 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BEAN & FRAME</title>
   <link rel="stylesheet" href="css/style.css" />
+
+  <!-- Firebase Core SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+  <!-- Firebase Auth SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+  <!-- Firebase Firestore (필요 시) -->
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+  <!-- Firebase 초기화 파일 -->
+  <script src="js/firebase-init.js"></script>
 </head>
 <body>
-  <!-- 헤더 -->
   <header class="header">
-    <nav>
+    <div class="util-bar">
       <ul class="util-menu">
         <li><a href="signup.html">회원가입</a></li>
         <li><a href="login.html">로그인</a></li>
-        <li><a href="order-summary.html">주문 조회</a></li>
+        <li><a href="order-summary.html">주문조회</a></li>
         <li><a href="cart.html">장바구니</a></li>
       </ul>
+    </div>
+    <div class="logo"><a href="index.html">BEAN & FRAME</a></div>
+    <nav>
+      <ul class="main-nav">
+        <li><a href="index.html#intro">BEAN & FRAME 소개</a></li>
+        <li><a href="beans.html">원두</a></li>
+      </ul>
     </nav>
-    <div class="logo center">BEAN & FRAME</div>
   </header>
 
-  <!-- 메인 콘텐츠 -->
   <main class="container">
-    <section class="intro">
-      <h1>당신만의 커피, BEAN & FRAME</h1>
-      <p>안 잔의 커피는 기억을 깨우고, 한 장의 사진은 그 기억을 남깁니다다.</p>
-    </section>
-
-    <hr />
-
-    <section class="bean-list">
-      <h2>우리의 원두</h2>
-      <p>곧 원두 목록이 여기에 표시됩니다.</p>
+    <section id="intro">
+      <h1>한 잔의 커피에는 기억을 깨우고,<br>한 장의 사진은 그 기억을 남깁니다.</h1>
     </section>
   </main>
 
-  <!-- 푸터 -->
   <footer class="footer">
-    &copy; 2025 BEAN & FRAME. All rights reserved.
-  </footer>
+  <div class="footer-inner">
+    <div class="footer-logo">BEAN & FRAME</div>
+
+    <div class="footer-top">
+      <a href="terms.html">이용약관</a>
+      <a href="privacy.html">개인정보처리방침</a>
+    </div>
+    <div class="footer-grid">
+      <div class="footer-company">
+      <p><span class="inline">상호명: BEAN & FRAME</span> <span class="inline">대표: 한욱철</span></p>
+      <p>주소: 경기도 수원시 어딘가 123</p>
+      <p>사업자등록번호: 123-45-67890</p>
+      <p>통신판매업신고번호: 제2025-경기시흥흥-0000호</p>
+    </div>
+    </div>
+
+    <div class="footer-copy">
+      &copy; 2025 BEAN & FRAME. All Rights Reserved.
+    </div>
+  </div>
+</footer>
 </body>
 </html>

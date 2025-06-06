@@ -1,85 +1,239 @@
-/* ==========================
-   기본 설정
-========================== */
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
+/* ===== 공통 ===== */
 body {
+  margin: 0;
   font-family: 'Noto Sans KR', sans-serif;
   background-color: #ffffff;
-  color: #222222;
-  line-height: 1.6;
+  color: #333;
+  cursor: default;
+  caret-color: transparent; /* 깜박이는 커서 제거 */
+}
+
+ul {
+  padding: 0;
+  margin: 0;
+  list-style: none;
 }
 
 a {
   text-decoration: none;
-  color: inherit;
+  color: #777;
+  transition: color 0.2s;
 }
 
-ul {
-  list-style: none;
+a:hover {
+  color: #000;
 }
 
-/* ==========================
-   헤더
-========================== */
+/* ===== 헤더 / 푸터 ===== */
+.header, .footer {
+  padding: 1rem;
+  text-align: center;
+  font-size: 0.9rem;
+}
 
 .header {
-  padding: 1rem 2rem;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid #ddd;
 }
 
-.top-bar {
+.footer {
+  background-color: #f9f9f9;
+  padding: 2rem 1rem;
+  font-size: 0.875rem;
+  color: #333;
+  border-top: 1px solid #ddd;
+  margin-top: 2rem;
+}
+
+.footer-inner {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.footer-top {
+  display: flex;
+  justify-content: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.footer-top a {
+  text-decoration: none;
+  color: #555;
+}
+
+.footer-logo {
+  font-size: 2rem;
+  font-weight: 900;
+  margin-bottom: 1rem;
+  text-align: left;
+}
+
+.footer-grid {
+  display: flex;
+  justify-content: flex-start;
+  gap: 2rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+  text-align: left;
+  line-height: 1.6;
+  font-size: 0.875rem;
+}
+
+.footer-grid div {
+  min-width: 240px;
+}
+
+.footer-grid .footer-company p {
+  margin: 0.4rem 0;
+}
+
+.footer-grid .footer-company p.inline {
+  display: inline-block;
+  margin-right: 1rem;
+}
+
+.footer-copy {
+  border-top: 1px solid #ccc;
+  padding-top: 1rem;
+  text-align: left;
+  color: #aaa;
+  font-size: 0.85rem;
+  margin-top: 2rem;
+}
+
+/* ===== 로고 ===== */
+.logo a {
+  font-size: 2.4rem;
+  font-weight: 900;
+  color: #000;
+}
+
+/* ===== 유틸 메뉴 ===== */
+.util-bar {
   display: flex;
   justify-content: flex-end;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   margin-bottom: 0.5rem;
 }
 
 .util-menu {
   display: flex;
-  gap: 0.5rem;
+  align-items: center;
+  font-size: 0.85rem;
 }
 
-.util-menu li::after {
-  content: '|';
-  margin: 0 0.5rem;
+.util-menu li + li::before {
+  content: "|";
   color: #ccc;
-}
-.util-menu li:last-child::after {
-  content: '';
-}
-
-.logo {
-  text-align: center;
-  font-size: 2rem;
-  font-weight: bold;
-  margin: 1rem 0;
+  margin: 0 0.35rem;
+  display: inline-block;
+  transform: translateY(-1px);
 }
 
-/* ==========================
-   푸터
-========================== */
-
-.footer {
-  text-align: center;
-  padding: 2rem;
-  border-top: 1px solid #e0e0e0;
-  font-size: 0.9rem;
-  color: #555555;
-  margin-top: 4rem;
+.util-menu a {
+  color: #777;
+  transition: color 0.2s;
 }
 
-/* ==========================
-   공통 컨테이너
-========================== */
+.util-menu a:hover {
+  color: #000;
+}
 
+/* ===== 내비게이션 ===== */
+.main-nav {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  font-size: 1rem;
+  margin-top: 0.5rem;
+}
+
+.main-nav a {
+  color: #000;
+  font-weight: 500;
+  text-decoration: none;
+  pointer-events: auto;
+}
+
+/* ===== 메인 컨테이너 ===== */
 .container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
+  max-width: 960px;
+  margin: 2rem auto;
+  padding: 1rem;
+}
+
+/* ===== 원두 카드 ===== */
+.beans-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+  margin-top: 2rem;
+  justify-items: center;
+}
+
+.bean-card {
+  background: #fff;
+  border: 1px solid #eee;
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+  transition: none;
+}
+
+.bean-card:hover {
+  box-shadow: none;
+}
+
+.bean-card img {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.bean-card, .bean-detail-box {
+  transition: none !important;
+  animation: none !important;
+}
+
+/* ===== 반응형 ===== */
+@media (max-width: 768px) {
+  .util-bar {
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+
+  .util-menu {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .main-nav {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .logo a {
+    font-size: 2rem;
+  }
+
+  .footer-grid {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .footer-logo {
+    text-align: center;
+  }
+
+  .footer-top {
+    justify-content: center;
+  }
+
+  .footer-copy {
+    text-align: center;
+  }
 }

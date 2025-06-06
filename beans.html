@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>원두 목록 | BEAN & FRAME</title>
+  <link rel="stylesheet" href="css/style.css" />
+
+  <!-- Firebase Core SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-init.js"></script>
+</head>
+<body>
+  <header class="header">
+    <div class="util-bar">
+      <ul class="util-menu">
+        <li><a href="signup.html">회원가입</a></li>
+        <li><a href="login.html">로그인</a></li>
+        <li><a href="order-summary.html">주문조회</a></li>
+        <li><a href="cart.html">장바구니</a></li>
+      </ul>
+    </div>
+    <div class="logo"><a href="index.html">BEAN & FRAME</a></div>
+    <nav>
+      <ul class="main-nav">
+        <li><a href="index.html#intro">BEAN & FRAME 소개</a></li>
+        <li><a href="beans.html">원두</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h1>원두 목록</h1>
+    <div class="beans-grid"></div>
+  </main>
+
+  <footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-logo">BEAN & FRAME</div>
+
+    <div class="footer-top">
+      <a href="terms.html">이용약관</a>
+      <a href="privacy.html">개인정보처리방침</a>
+    </div>
+    <div class="footer-grid">
+      <div class="footer-company">
+      <p><span class="inline">상호명: BEAN & FRAME</span> <span class="inline">대표: 한욱철</span></p>
+      <p>주소: 경기도 수원시 어딘가 123</p>
+      <p>사업자등록번호: 123-45-67890</p>
+      <p>통신판매업신고번호: 제2025-경기시흥흥-0000호</p>
+    </div>
+    </div>
+
+    <div class="footer-copy">
+      &copy; 2025 BEAN & FRAME. All Rights Reserved.
+    </div>
+  </div>
+
+  <script>
+    const db = firebase.firestore();
+    const beansGrid = document.querySelector('.beans-grid');
+    const cacheKey = 'beansListCache';
+    const cacheTTL = 1000 * 60 * 60; // 1시간
+    const now = Date.now();
+
+    function renderBeans(data) {
+      const fragment = document.createDocumentFragment();
+
+      data.forEach(({ id, bean }) => {
+        const image = bean.image || "images/default.jpg";
+        const name = bean.name || "이름 없음";
+        const description = bean.description || "설명 없음";
+        const price = bean.price != null ? `${bean.price.toLocaleString()}원` : "가격 미정";
+
+        const card = document.createElement('div');
+        card.className = 'bean-card';
+
+        const link = document.createElement('a');
+        link.href = `beans-detail.html?id=${id}`;
+        link.className = 'bean-link';
+
+        const img = document.createElement('img');
+        img.src = image;
+        img.alt = name;
+        img.loading = 'lazy';
+
+        const h3 = document.createElement('h3');
+        h3.textContent = name;
+
+        const p = document.createElement('p');
+        p.textContent = description;
+
+        const strong = document.createElement('strong');
+        strong.textContent = price;
+
+        link.appendChild(img);
+        link.appendChild(h3);
+        link.appendChild(p);
+        link.appendChild(strong);
+        card.appendChild(link);
+        fragment.appendChild(card);
+      });
+
+      beansGrid.innerHTML = '';
+      beansGrid.appendChild(fragment);
+    }
+
+    const cached = JSON.parse(localStorage.getItem(cacheKey) || '{}');
+    if (cached.data && now - cached.timestamp < cacheTTL) {
+      renderBeans(cached.data);
+    } else {
+      db.collection('beans').get()
+        .then(snapshot => {
+          if (snapshot.empty) {
+            beansGrid.innerHTML = '<p>등록된 원두가 없습니다.</p>';
+            return;
+          }
+
+          const beansData = [];
+          snapshot.forEach(doc => {
+            beansData.push({ id: doc.id, bean: doc.data() });
+          });
+
+          renderBeans(beansData);
+          localStorage.setItem(cacheKey, JSON.stringify({ data: beansData, timestamp: now }));
+        })
+        .catch(err => {
+          console.error("원두 로딩 실패:", err);
+          beansGrid.innerHTML = '<p>원두 정보를 불러오는 데 실패했습니다.</p>';
+        });
+    }
+  </script>
+</body>
+</html>
